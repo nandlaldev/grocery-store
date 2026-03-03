@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= product ? 'Edit' : 'Add' %> Product – Grocery Admin</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; }
+    .admin-wrap { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 220px; background: #0f766e; color: #fff; padding: 1rem 0; flex-shrink: 0; display: flex; flex-direction: column; }
+    .sidebar-brand { font-weight: 700; font-size: 1.1rem; padding: 0 1rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
+    .sidebar-nav { flex: 1; }
+    .sidebar-link { display: block; padding: 0.6rem 1rem; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .sidebar-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+    .sidebar-logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; color: rgba(255,255,255,0.8); }
+    .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
+    .container { max-width: 560px; padding: 1.5rem; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    form label { display: block; margin-top: 0.75rem; font-weight: 500; }
+    form input, form textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; border: 1px solid #ccc; border-radius: 4px; }
+    form textarea { min-height: 80px; }
+    .error { color: #b91c1c; margin-top: 0.5rem; }
+    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; cursor: pointer; border: none; }
+    .btn-primary { background: #0f766e; color: #fff; }
+    img.thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <%- include('partials/sidebar', { active: 'products' }) %>
+    <main class="admin-main">
+  <div class="container">
+    <h1><%= product ? 'Edit Product' : 'Add Product' %></h1>
+    <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
+    <form method="post" action="<%= product ? '/admin/products/' + product._id : '/admin/products' %>" enctype="multipart/form-data">
+      <label>Name</label>
+      <input type="text" name="name" value="<%= product ? product.name : '' %>" required />
+      <label>Price (₹)</label>
+      <input type="number" name="price" step="0.01" min="0" value="<%= product ? product.price : '' %>" required />
+      <label>Description</label>
+      <textarea name="description"><%= product ? product.description : '' %></textarea>
+      <label>Category</label>
+      <input type="text" name="category" list="categories" value="<%= product ? product.category : '' %>" required />
+      <datalist id="categories">
+        <% (categories || []).forEach(function(c) { %><option value="<%= c %>"><% }); %>
+      </datalist>
+      <label>Image</label>
+      <input type="file" name="image" accept="image/*" />
+      <% if (product && product.imageUrl) { %><p><img class="thumb" src="<%= product.imageUrl %>" alt="" /> Current image</p><% } %>
+      <p style="margin-top:1rem;">
+        <button type="submit" class="btn btn-primary"><%= product ? 'Update' : 'Create' %> Product</button>
+        <a href="/admin" class="btn" style="margin-left:0.5rem;">Cancel</a>
+      </p>
+    </form>
+  </div>
+    </main>
+  </div>
+</body>
+</html>
