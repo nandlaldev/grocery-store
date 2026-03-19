@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { ordersApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
@@ -16,7 +15,7 @@ export default function Orders() {
       pincode: string;
       total: number;
       status: string;
-      createdAt: string;
+      createdAt?: string;
     }>
   >([]);
   const [loading, setLoading] = useState(true);
@@ -55,9 +54,9 @@ export default function Orders() {
           <ul className="space-y-4">
             {orders.map((o) => (
               <li key={o._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
                   <span className="text-sm text-gray-500">
-                    {new Date(o.createdAt).toLocaleDateString()}
+                    {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '—'}
                   </span>
                   <span className="text-sm font-medium text-primary">{o.status}</span>
                 </div>

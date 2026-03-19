@@ -52,7 +52,7 @@ export default function Cart() {
           {items.map((i) => (
             <li
               key={i.productId}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-4"
+              className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row gap-4"
             >
               <div className="w-20 h-20 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">
                 {i.imageUrl ? (
@@ -92,7 +92,7 @@ export default function Cart() {
                   </button>
                 </div>
               </div>
-              <div className="text-right font-medium">
+              <div className="text-left sm:text-right font-medium">
                 ₹{(i.price * i.quantity).toFixed(0)}
               </div>
             </li>

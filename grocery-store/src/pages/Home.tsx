@@ -57,10 +57,10 @@ export default function Home() {
         categories={categories}
       />
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-6">
         {banners.length > 0 && <BannerSlider banners={banners} />}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="bg-white rounded-xl shadow p-4 animate-pulse">
                 <div className="aspect-square bg-gray-200 rounded-lg mb-3" />
@@ -72,7 +72,7 @@ export default function Home() {
         ) : products.length === 0 ? (
           <p className="text-center text-gray-500 py-12">No products found.</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((p) => (
               <div
                 key={p._id}
