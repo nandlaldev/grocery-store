@@ -22,24 +22,36 @@ export default function AccountDropdown() {
     navigate('/');
   };
 
+  const initials = user?.fullName
+    ? user.fullName
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((s) => s[0]?.toUpperCase())
+        .join('')
+    : 'U';
+
   return (
     <div className="relative" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 border border-gray-200 min-w-[100px] justify-center"
+        className="w-9 h-9 rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 flex items-center justify-center text-sm font-semibold"
         aria-expanded={open}
         aria-haspopup="true"
       >
-        <span className="font-medium">Account</span>
-        <svg
-          className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        {token && user ? (
+          <span>{initials}</span>
+        ) : (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        )}
       </button>
       {open && (
         <div className="absolute right-0 mt-1 w-48 py-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
