@@ -5,6 +5,7 @@ import Order from '../models/Order.js';
 import Banner from '../models/Banner.js';
 import Blog from '../models/Blog.js';
 import Team from '../models/Team.js';
+import Faq from '../models/Faq.js';
 
 function slugify(s) {
   return String(s)
@@ -321,4 +322,59 @@ export async function updateTeam(req, res) {
 export async function deleteTeam(req, res) {
   await Team.findByIdAndDelete(req.params.id);
   return res.redirect('/admin/team');
+}
+
+export async function renderFaqs(_req, res) {
+  const faqs = await Faq.find().sort({ order: 1, createdAt: 1 }).lean();
+  return res.render('admin/faqs', { faqs });
+}
+
+export function renderNewFaq(req, res) {
+  return res.render('admin/faq-form', { faq: null, error: req.query.error || null });
+}
+
+export async function renderEditFaq(req, res) {
+  const faq = await Faq.findById(req.params.id).lean();
+  if (!faq) return res.redirect('/admin/faqs');
+  return res.render('admin/faq-form', { faq, error: null });
+}
+
+export async function createFaq(req, res) {
+  const question = (req.body.question || '').trim();
+  const answer = (req.body.answer || '').trim();
+  if (!question || !answer) {
+    return res.render('admin/faq-form', { faq: null, error: 'Question and answer are required' });
+  }
+  const count = await Faq.countDocuments();
+  await Faq.create({
+    question,
+    answer,
+    order: req.body.order !== undefined ? parseInt(req.body.order, 10) || 0 : count,
+    active: req.body.active !== 'off',
+  });
+  return res.redirect('/admin/faqs');
+}
+
+export async function updateFaq(req, res) {
+  const faq = await Faq.findById(req.params.id);
+  if (!faq) return res.redirect('/admin/faqs');
+  const question = (req.body.question || '').trim();
+  const answer = (req.body.answer || '').trim();
+  if (!question || !answer) {
+    return res.render('admin/faq-form', {
+      faq: faq.toObject(),
+      error: 'Question and answer are required',
+    });
+  }
+  faq.question = question;
+  faq.answer = answer;
+  faq.order = req.body.order !== undefined ? parseInt(req.body.order, 10) || 0 : faq.order;
+  faq.active = req.body.active !== 'off';
+  await faq.save();
+  return res.redirect('/admin/faqs');
+}
+
+export async function deleteFaq(req, res) {
+  await Faq.findByIdAndDelete(req.params.id);
+  return res.redirect('/admin/faqs');
 }

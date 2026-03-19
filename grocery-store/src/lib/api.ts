@@ -168,3 +168,14 @@ export type TeamMember = {
 export const teamApi = {
   list: () => api<TeamMember[]>('/api/team'),
 };
+
+export type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
+  order: number;
+};
+
+export const faqApi = {
+  list: () => api<FaqItem[]>('/api/faqs'),
+};

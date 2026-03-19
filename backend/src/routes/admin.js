@@ -30,9 +30,15 @@ import {
   updateTeam,
   updateProduct,
   createTeam,
+  createFaq,
+  deleteFaq,
   deleteTeam,
+  renderEditFaq,
   renderEditTeam,
+  renderFaqs,
+  renderNewFaq,
   renderNewTeam,
+  updateFaq,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -104,5 +110,11 @@ router.get('/team/edit/:id', requireAdminSession, renderEditTeam);
 router.post('/team', requireAdminSession, upload.single('image'), createTeam);
 router.post('/team/:id', requireAdminSession, upload.single('image'), updateTeam);
 router.post('/team/:id/delete', requireAdminSession, deleteTeam);
+router.get('/faqs', requireAdminSession, renderFaqs);
+router.get('/faqs/new', requireAdminSession, renderNewFaq);
+router.get('/faqs/edit/:id', requireAdminSession, renderEditFaq);
+router.post('/faqs', requireAdminSession, createFaq);
+router.post('/faqs/:id', requireAdminSession, updateFaq);
+router.post('/faqs/:id/delete', requireAdminSession, deleteFaq);
 
 export default router;
