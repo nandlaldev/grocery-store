@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { blogsApi } from '../lib/api';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -65,6 +66,7 @@ export default function BlogList() {
           </ul>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

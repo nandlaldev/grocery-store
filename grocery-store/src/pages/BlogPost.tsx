@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { blogsApi } from '../lib/api';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -97,6 +98,7 @@ export default function BlogPost() {
         .blog-content a { color: #059669; text-decoration: underline; }
         .blog-content blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; margin: 1rem 0; color: #6b7280; }
       `}</style>
+      <Footer />
     </div>
   );
 }

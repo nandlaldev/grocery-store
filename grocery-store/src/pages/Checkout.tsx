@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ordersApi } from '../lib/api';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Checkout() {
   const { items, refresh: refreshCart } = useCart();
@@ -135,6 +136,7 @@ export default function Checkout() {
           </div>
         </form>
       </main>
+      <Footer />
     </div>
   );
 }

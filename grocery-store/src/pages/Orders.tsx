@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ordersApi } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Orders() {
   const { token } = useAuth();
@@ -71,6 +72,7 @@ export default function Orders() {
           </ul>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

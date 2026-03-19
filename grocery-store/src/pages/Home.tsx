@@ -5,6 +5,7 @@ import BannerSlider from '../components/BannerSlider';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Home() {
   const [products, setProducts] = useState<
@@ -118,6 +119,7 @@ export default function Home() {
           {toast}
         </div>
       )}
+      <Footer />
     </div>
   );
 }

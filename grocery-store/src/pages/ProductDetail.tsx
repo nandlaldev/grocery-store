@@ -4,6 +4,7 @@ import { productsApi } from '../lib/api';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -85,6 +86,7 @@ export default function ProductDetail() {
           {toast}
         </div>
       )}
+      <Footer />
     </div>
   );
 }

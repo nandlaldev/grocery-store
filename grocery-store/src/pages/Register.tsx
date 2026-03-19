@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
@@ -74,6 +75,7 @@ export default function Register() {
         </p>
       </div>
       </div>
+      <Footer />
     </div>
   );
 }

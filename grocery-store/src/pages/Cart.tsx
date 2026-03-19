@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Cart() {
   const { items, loading, updateQty, remove } = useCart();
@@ -115,6 +116,7 @@ export default function Cart() {
           </Link>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
