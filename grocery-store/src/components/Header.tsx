@@ -44,6 +44,15 @@ export default function Header({
             <NavLink to="/about" className={tabClass}>
               About
             </NavLink>
+            <NavLink to="/team" className={tabClass}>
+              Team
+            </NavLink>
+            <NavLink to="/contact" className={tabClass}>
+              Contact
+            </NavLink>
+            <NavLink to="/faq" className={tabClass}>
+              FAQ
+            </NavLink>
           </nav>
 
           <div className="flex items-center gap-2 justify-self-end">
@@ -68,6 +77,15 @@ export default function Header({
           </NavLink>
           <NavLink to="/about" className={tabClass}>
             About
+          </NavLink>
+          <NavLink to="/team" className={tabClass}>
+            Team
+          </NavLink>
+          <NavLink to="/contact" className={tabClass}>
+            Contact
+          </NavLink>
+          <NavLink to="/faq" className={tabClass}>
+            FAQ
           </NavLink>
         </nav>
         {showSearch && (
