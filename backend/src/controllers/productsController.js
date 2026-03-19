@@ -48,6 +48,7 @@ export async function createProduct(req, res) {
     const product = await Product.create({
       name: req.body.name,
       price: Number(req.body.price),
+      qty: req.body.qty !== undefined ? Number(req.body.qty) : 0,
       description: req.body.description || '',
       category: req.body.category,
       imageUrl,
@@ -68,6 +69,7 @@ export async function updateProduct(req, res) {
     if (!product) return res.status(404).json({ error: 'Product not found' });
     product.name = req.body.name;
     product.price = Number(req.body.price);
+    product.qty = req.body.qty !== undefined ? Number(req.body.qty) : product.qty;
     product.description = req.body.description || '';
     product.category = req.body.category;
     if (req.file) {

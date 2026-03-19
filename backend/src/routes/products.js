@@ -27,6 +27,7 @@ router.post(
   [
     body('name').trim().notEmpty(),
     body('price').isFloat({ min: 0 }),
+    body('qty').optional().isInt({ min: 0 }),
     body('description').optional().trim(),
     body('category').trim().notEmpty(),
   ],
@@ -41,6 +42,7 @@ router.put(
   [
     body('name').trim().notEmpty(),
     body('price').isFloat({ min: 0 }),
+    body('qty').optional().isInt({ min: 0 }),
     body('description').optional().trim(),
     body('category').trim().notEmpty(),
   ],

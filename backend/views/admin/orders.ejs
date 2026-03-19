@@ -32,6 +32,9 @@
     <%- include('partials/sidebar', { active: 'orders' }) %>
     <main class="admin-main">
       <h1>Order Management</h1>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <p style="color:#b91c1c;"><%= error %></p>
+      <% } %>
       <% if (orders.length === 0) { %>
         <p>No orders yet.</p>
       <% } else { %>

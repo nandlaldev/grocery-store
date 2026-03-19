@@ -72,6 +72,7 @@ export async function createProduct(req, res) {
   await Product.create({
     name: req.body.name,
     price: Number(req.body.price),
+    qty: req.body.qty !== undefined ? Number(req.body.qty) : 0,
     description: req.body.description || '',
     category: req.body.category,
     imageUrl,
@@ -93,6 +94,7 @@ export async function updateProduct(req, res) {
   }
   product.name = req.body.name;
   product.price = Number(req.body.price);
+  product.qty = req.body.qty !== undefined ? Number(req.body.qty) : product.qty;
   product.description = req.body.description || '';
   product.category = req.body.category;
   if (req.file) {
@@ -112,16 +114,35 @@ export async function renderUsers(_req, res) {
   return res.render('admin/users', { users });
 }
 
-export async function renderOrders(_req, res) {
+export async function renderOrders(req, res) {
   const orders = await Order.find().sort({ createdAt: -1 }).lean();
-  return res.render('admin/orders', { orders });
+  return res.render('admin/orders', { orders, error: req.query.error || null });
 }
 
 export async function updateOrderStatus(req, res) {
   const status = req.body.status;
-  if (['pending', 'confirmed', 'delivered'].includes(status)) {
-    await Order.findByIdAndUpdate(req.params.id, { status });
+  if (!['pending', 'confirmed', 'delivered'].includes(status)) {
+    return res.redirect('/admin/orders');
   }
+
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.redirect('/admin/orders');
+
+  const confirmNow = status === 'confirmed' && order.status !== 'confirmed';
+  if (confirmNow) {
+    for (const item of order.items) {
+      const updated = await Product.updateOne(
+        { _id: item.product, qty: { $gte: item.quantity } },
+        { $inc: { qty: -item.quantity } }
+      );
+      if (!updated.modifiedCount) {
+        return res.redirect('/admin/orders?error=Insufficient+stock+for+one+or+more+items');
+      }
+    }
+  }
+
+  order.status = status;
+  await order.save();
   return res.redirect('/admin/orders');
 }
 

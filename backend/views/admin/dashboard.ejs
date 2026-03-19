@@ -42,6 +42,7 @@
               <th>Name</th>
               <th>Category</th>
               <th>Price</th>
+              <th>Stock</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -52,6 +53,7 @@
               <td><%= p.name %></td>
               <td><%= p.category %></td>
               <td>₹<%= p.price %></td>
+              <td><%= p.qty ?? 0 %></td>
               <td>
                 <a href="/admin/products/edit/<%= p._id %>" class="btn btn-primary btn-sm">Edit</a>
                 <form method="post" action="/admin/products/<%= p._id %>/delete" style="display:inline;" onsubmit="return confirm('Delete this product?');">

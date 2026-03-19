@@ -38,6 +38,8 @@
       <input type="text" name="name" value="<%= product ? product.name : '' %>" required />
       <label>Price (₹)</label>
       <input type="number" name="price" step="0.01" min="0" value="<%= product ? product.price : '' %>" required />
+      <label>Stock Qty</label>
+      <input type="number" name="qty" step="1" min="0" value="<%= product ? (product.qty ?? 0) : 0 %>" required />
       <label>Description</label>
       <textarea name="description"><%= product ? product.description : '' %></textarea>
       <label>Category</label>
