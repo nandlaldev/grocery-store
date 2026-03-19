@@ -155,3 +155,16 @@ export const ticketsApi = {
       body: JSON.stringify(body),
     }),
 };
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  imageUrl: string;
+  order: number;
+};
+
+export const teamApi = {
+  list: () => api<TeamMember[]>('/api/team'),
+};

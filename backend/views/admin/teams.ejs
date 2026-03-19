@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Management – Grocery Admin</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; }
+    .admin-wrap { display: flex; min-height: 100vh; }
+    .admin-sidebar { width: 220px; background: #0f766e; color: #fff; padding: 1rem 0; flex-shrink: 0; display: flex; flex-direction: column; }
+    .sidebar-brand { font-weight: 700; font-size: 1.1rem; padding: 0 1rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
+    .sidebar-nav { flex: 1; }
+    .sidebar-link { display: block; padding: 0.6rem 1rem; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .sidebar-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+    .sidebar-logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; color: rgba(255,255,255,0.8); }
+    .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+    th { background: #0f766e; color: #fff; }
+    .thumb { width: 52px; height: 52px; border-radius: 999px; object-fit: cover; background: #f1f5f9; border: 1px solid #e2e8f0; }
+    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; cursor: pointer; border: none; }
+    .btn-primary { background: #0f766e; color: #fff; }
+    .btn-danger { background: #b91c1c; color: #fff; }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+    .muted { color: #64748b; font-size: 0.85rem; }
+    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-inactive { background: #e2e8f0; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <%- include('partials/sidebar', { active: 'team' }) %>
+    <main class="admin-main">
+      <h1>Team Management</h1>
+      <p class="muted">Manage team cards shown on the public Team page.</p>
+      <p><a href="/admin/team/new" class="btn btn-primary">Add Member</a></p>
+
+      <% if (!members || members.length === 0) { %>
+        <p>No team members yet. <a href="/admin/team/new">Add one</a>.</p>
+      <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Description</th>
+              <th>Order</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% members.forEach(function(m) { %>
+              <tr>
+                <td>
+                  <% if (m.imageUrl) { %>
+                    <img src="<%= m.imageUrl %>" alt="" class="thumb" />
+                  <% } else { %>
+                    <span class="muted">No image</span>
+                  <% } %>
+                </td>
+                <td><strong><%= m.name %></strong></td>
+                <td><%= m.role %></td>
+                <td><span class="muted"><%= m.description || '—' %></span></td>
+                <td><%= m.order || 0 %></td>
+                <td>
+                  <span class="badge <%= m.active ? 'badge-active' : 'badge-inactive' %>">
+                    <%= m.active ? 'active' : 'inactive' %>
+                  </span>
+                </td>
+                <td>
+                  <a href="/admin/team/edit/<%= m._id %>" class="btn btn-primary btn-sm">Edit</a>
+                  <form method="post" action="/admin/team/<%= m._id %>/delete" style="display:inline;" onsubmit="return confirm('Delete this member?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>

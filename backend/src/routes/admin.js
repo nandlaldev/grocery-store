@@ -22,11 +22,17 @@ import {
   renderNewBlog,
   renderNewProduct,
   renderOrders,
+  renderTeams,
   renderUsers,
   updateBanner,
   updateBlog,
   updateOrderStatus,
+  updateTeam,
   updateProduct,
+  createTeam,
+  deleteTeam,
+  renderEditTeam,
+  renderNewTeam,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -92,5 +98,11 @@ router.get('/blogs/edit/:id', requireAdminSession, renderEditBlog);
 router.post('/blogs', requireAdminSession, upload.single('image'), createBlog);
 router.post('/blogs/:id', requireAdminSession, upload.single('image'), updateBlog);
 router.post('/blogs/:id/delete', requireAdminSession, deleteBlog);
+router.get('/team', requireAdminSession, renderTeams);
+router.get('/team/new', requireAdminSession, renderNewTeam);
+router.get('/team/edit/:id', requireAdminSession, renderEditTeam);
+router.post('/team', requireAdminSession, upload.single('image'), createTeam);
+router.post('/team/:id', requireAdminSession, upload.single('image'), updateTeam);
+router.post('/team/:id/delete', requireAdminSession, deleteTeam);
 
 export default router;

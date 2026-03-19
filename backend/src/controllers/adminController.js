@@ -4,6 +4,7 @@ import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import Banner from '../models/Banner.js';
 import Blog from '../models/Blog.js';
+import Team from '../models/Team.js';
 
 function slugify(s) {
   return String(s)
@@ -249,4 +250,75 @@ export async function updateBlog(req, res) {
 export async function deleteBlog(req, res) {
   await Blog.findByIdAndDelete(req.params.id);
   return res.redirect('/admin/blogs');
+}
+
+export async function renderTeams(_req, res) {
+  const members = await Team.find().sort({ order: 1, createdAt: 1 }).lean();
+  return res.render('admin/teams', { members });
+}
+
+export function renderNewTeam(req, res) {
+  return res.render('admin/team-form', { member: null, error: req.query.error || null });
+}
+
+export async function renderEditTeam(req, res) {
+  const member = await Team.findById(req.params.id).lean();
+  if (!member) return res.redirect('/admin/team');
+  return res.render('admin/team-form', { member, error: null });
+}
+
+export async function createTeam(req, res) {
+  try {
+    const name = (req.body.name || '').trim();
+    const role = (req.body.role || '').trim();
+    if (!name || !role) {
+      return res.render('admin/team-form', {
+        member: null,
+        error: 'Name and role are required',
+      });
+    }
+    const count = await Team.countDocuments();
+    await Team.create({
+      name,
+      role,
+      description: req.body.description || '',
+      imageUrl: getUploadedImageUrl(req),
+      order: req.body.order !== undefined ? parseInt(req.body.order, 10) || 0 : count,
+      active: req.body.active !== 'off',
+    });
+    return res.redirect('/admin/team');
+  } catch (err) {
+    return res.render('admin/team-form', {
+      member: null,
+      error: err.message || 'Failed to create team member',
+    });
+  }
+}
+
+export async function updateTeam(req, res) {
+  const member = await Team.findById(req.params.id);
+  if (!member) return res.redirect('/admin/team');
+  const name = (req.body.name || '').trim();
+  const role = (req.body.role || '').trim();
+  if (!name || !role) {
+    return res.render('admin/team-form', {
+      member: member.toObject(),
+      error: 'Name and role are required',
+    });
+  }
+  member.name = name;
+  member.role = role;
+  member.description = req.body.description || '';
+  member.order = req.body.order !== undefined ? parseInt(req.body.order, 10) || 0 : member.order;
+  member.active = req.body.active !== 'off';
+  if (req.file) {
+    member.imageUrl = getUploadedImageUrl(req);
+  }
+  await member.save();
+  return res.redirect('/admin/team');
+}
+
+export async function deleteTeam(req, res) {
+  await Team.findByIdAndDelete(req.params.id);
+  return res.redirect('/admin/team');
 }
