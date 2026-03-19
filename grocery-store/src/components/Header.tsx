@@ -28,11 +28,38 @@ export default function Header({
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
-      <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-3 flex flex-wrap items-center gap-3 sm:gap-4">
-        <Link to="/" className="text-xl font-bold text-primary shrink-0">
-          Grocery
-        </Link>
-        <div className="ml-auto flex items-center gap-2 shrink-0">
+      <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-3">
+        <div className="grid grid-cols-2 md:grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <Link to="/" className="text-xl font-bold text-primary shrink-0">
+            Grocery
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-2 justify-self-center">
+            <NavLink to="/" end className={tabClass}>
+              Home
+            </NavLink>
+            <NavLink to="/blog" className={tabClass}>
+              Blog
+            </NavLink>
+            <NavLink to="/about" className={tabClass}>
+              About
+            </NavLink>
+          </nav>
+
+          <div className="flex items-center gap-2 justify-self-end">
+            {token && (
+              <Link
+                to="/cart"
+                className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark whitespace-nowrap"
+              >
+                Cart
+              </Link>
+            )}
+            <AccountDropdown />
+          </div>
+        </div>
+
+        <nav className="mt-2 flex md:hidden items-center justify-center gap-2">
           <NavLink to="/" end className={tabClass}>
             Home
           </NavLink>
@@ -42,16 +69,7 @@ export default function Header({
           <NavLink to="/about" className={tabClass}>
             About
           </NavLink>
-          {token && (
-            <Link
-              to="/cart"
-              className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark whitespace-nowrap"
-            >
-              Cart
-            </Link>
-          )}
-          <AccountDropdown />
-        </div>
+        </nav>
         {showSearch && (
           <div className="w-full flex flex-col sm:flex-row gap-2 sm:items-center">
             <input
