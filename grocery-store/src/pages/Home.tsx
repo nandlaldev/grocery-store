@@ -49,17 +49,35 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header
-        showSearch
-        searchValue={search}
-        onSearchChange={setSearch}
-        categoryValue={category}
-        onCategoryChange={setCategory}
-        categories={categories}
-      />
+      <Header />
 
       <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-6">
         {banners.length > 0 && <BannerSlider banners={banners} />}
+        <section className="mb-5 bg-white rounded-xl border border-gray-200 p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <input
+              type="search"
+              placeholder="Search products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full sm:flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            {categories.length > 0 && (
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              >
+                <option value="">All Categories</option>
+                {categories.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        </section>
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
