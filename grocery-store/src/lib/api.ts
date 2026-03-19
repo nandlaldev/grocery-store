@@ -141,3 +141,17 @@ export const ordersApi = {
   }) =>
     api<{ _id: string }>('/api/orders', { method: 'POST', body: JSON.stringify(body) }),
 };
+
+export const ticketsApi = {
+  create: (body: {
+    fullName: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+  }) =>
+    api<{ id: string; status: string; createdAt: string; message: string }>('/api/tickets', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+};

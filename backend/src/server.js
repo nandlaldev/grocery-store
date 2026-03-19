@@ -18,6 +18,7 @@ import orderRoutes from './routes/orders.js';
 import configRoutes from './routes/config.js';
 import blogRoutes from './routes/blogs.js';
 import adminRoutes from './routes/admin.js';
+import ticketRoutes from './routes/tickets.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -48,6 +49,7 @@ app.use('/api/cart', auth, cartRoutes);
 app.use('/api/orders', auth, orderRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/tickets', ticketRoutes);
 app.use('/admin', adminRoutes);
 
 app.use((err, _req, res, _next) => {
