@@ -14,6 +14,7 @@ export default function Home() {
   const [categories, setCategories] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
+  const [sortBy, setSortBy] = useState<'relevance' | 'newest' | 'price_asc' | 'price_desc'>('newest');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [banners, setBanners] = useState<Array<{ id: string; imageUrl: string; title: string; subtitle: string; order: number }>>([]);
@@ -47,6 +48,27 @@ export default function Home() {
     setToast('Added to cart');
   };
 
+  const sortedProducts = (() => {
+    if (sortBy === 'price_asc') return [...products].sort((a, b) => a.price - b.price);
+    if (sortBy === 'price_desc') return [...products].sort((a, b) => b.price - a.price);
+    // relevance/newest: API already returns newest first (createdAt desc)
+    return products;
+  })();
+
+  const topProducts = sortedProducts.slice(0, 4);
+  const bottomProducts = sortedProducts.slice(4, 8);
+  const canViewMore = sortedProducts.length > 8;
+
+  const viewMoreHref = (() => {
+    const params = new URLSearchParams();
+    if (search) params.set('q', search);
+    if (category) params.set('category', category);
+    params.set('sort', sortBy);
+    params.set('page', '1');
+    const query = params.toString();
+    return `/products${query ? `?${query}` : ''}`;
+  })();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -76,88 +98,198 @@ export default function Home() {
                 ))}
               </select>
             )}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              aria-label="Sort products"
+            >
+              <option value="newest">Newest</option>
+              <option value="relevance">Relevance</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </select>
           </div>
         </section>
+
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow p-4 animate-pulse">
-                <div className="aspect-square bg-gray-200 rounded-lg mb-3" />
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-4 bg-gray-200 rounded w-1/2" />
-              </div>
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl shadow p-4 animate-pulse">
+                  <div className="aspect-square bg-gray-200 rounded-lg mb-3" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-xl shadow p-4 animate-pulse">
+                  <div className="aspect-square bg-gray-200 rounded-lg mb-3" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          </>
         ) : products.length === 0 ? (
           <p className="text-center text-gray-500 py-12">No products found.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((p) => (
-              <div
-                key={p._id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
-              >
-                <Link to={`/product/${p._id}`} className="block aspect-square bg-gray-100">
-                  {p.imageUrl ? (
-                    <img
-                      src={p.imageUrl.startsWith('http') ? p.imageUrl : `${import.meta.env.VITE_API_URL || ''}${p.imageUrl}`}
-                      alt={p.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No image
-                    </div>
-                  )}
-                </Link>
-                <div className="p-3">
-                  <Link to={`/product/${p._id}`}>
-                    <h3 className="font-medium text-gray-900 truncate">{p.name}</h3>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {topProducts.map((p) => (
+                <div
+                  key={p._id}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
+                >
+                  <Link to={`/product/${p._id}`} className="block aspect-square bg-gray-100">
+                    {p.imageUrl ? (
+                      <img
+                        src={
+                          p.imageUrl.startsWith('http')
+                            ? p.imageUrl
+                            : `${import.meta.env.VITE_API_URL || ''}${p.imageUrl}`
+                        }
+                        alt={p.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        No image
+                      </div>
+                    )}
                   </Link>
-                  <p className="text-sm text-gray-500 line-clamp-2 mt-0.5">{p.description || '—'}</p>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="font-semibold text-primary">₹{p.price}</span>
-                    {(() => {
-                      const qty = items.find((i) => i.productId === p._id)?.quantity ?? 0;
-                      if (qty === 0) {
+                  <div className="p-3">
+                    <Link to={`/product/${p._id}`}>
+                      <h3 className="font-medium text-gray-900 truncate">{p.name}</h3>
+                    </Link>
+                    <p className="text-sm text-gray-500 line-clamp-2 mt-0.5">{p.description || '—'}</p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="font-semibold text-primary">₹{p.price}</span>
+                      {(() => {
+                        const qty = items.find((i) => i.productId === p._id)?.quantity ?? 0;
+                        if (qty === 0) {
+                          return (
+                            <button
+                              onClick={() => handleAddToCart(p._id)}
+                              disabled={cartLoading}
+                              className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark disabled:opacity-50"
+                            >
+                              Add
+                            </button>
+                          );
+                        }
                         return (
-                          <button
-                            onClick={() => handleAddToCart(p._id)}
-                            disabled={cartLoading}
-                            className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark disabled:opacity-50"
-                          >
-                            Add
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => updateQty(p._id, qty - 1)}
+                              disabled={cartLoading}
+                              className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              −
+                            </button>
+                            <span className="w-6 text-center font-semibold text-gray-900">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => updateQty(p._id, qty + 1)}
+                              disabled={cartLoading}
+                              className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              +
+                            </button>
+                          </div>
                         );
-                      }
-
-                      return (
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => updateQty(p._id, qty - 1)}
-                            disabled={cartLoading}
-                            className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            −
-                          </button>
-                          <span className="w-6 text-center font-semibold text-gray-900">{qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => updateQty(p._id, qty + 1)}
-                            disabled={cartLoading}
-                            className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            +
-                          </button>
-                        </div>
-                      );
-                    })()}
+                      })()}
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {bottomProducts.map((p) => (
+                <div
+                  key={p._id}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
+                >
+                  <Link to={`/product/${p._id}`} className="block aspect-square bg-gray-100">
+                    {p.imageUrl ? (
+                      <img
+                        src={
+                          p.imageUrl.startsWith('http')
+                            ? p.imageUrl
+                            : `${import.meta.env.VITE_API_URL || ''}${p.imageUrl}`
+                        }
+                        alt={p.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        No image
+                      </div>
+                    )}
+                  </Link>
+                  <div className="p-3">
+                    <Link to={`/product/${p._id}`}>
+                      <h3 className="font-medium text-gray-900 truncate">{p.name}</h3>
+                    </Link>
+                    <p className="text-sm text-gray-500 line-clamp-2 mt-0.5">{p.description || '—'}</p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="font-semibold text-primary">₹{p.price}</span>
+                      {(() => {
+                        const qty = items.find((i) => i.productId === p._id)?.quantity ?? 0;
+                        if (qty === 0) {
+                          return (
+                            <button
+                              onClick={() => handleAddToCart(p._id)}
+                              disabled={cartLoading}
+                              className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark disabled:opacity-50"
+                            >
+                              Add
+                            </button>
+                          );
+                        }
+                        return (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => updateQty(p._id, qty - 1)}
+                              disabled={cartLoading}
+                              className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              −
+                            </button>
+                            <span className="w-6 text-center font-semibold text-gray-900">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => updateQty(p._id, qty + 1)}
+                              disabled={cartLoading}
+                              className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                            >
+                              +
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {canViewMore && (
+              <div className="mt-7 flex justify-center">
+                <Link
+                  to={viewMoreHref}
+                  className="px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark"
+                >
+                  View More
+                </Link>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
 
         <section className="mt-10 bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
