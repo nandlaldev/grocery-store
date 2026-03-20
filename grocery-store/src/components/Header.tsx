@@ -35,11 +35,11 @@ export default function Header({
           </Link>
 
           <nav className="hidden md:flex items-center gap-2 justify-self-center">
-            <NavLink to="/products" className={tabClass}>
-              Products
-            </NavLink>
             <NavLink to="/" end className={tabClass}>
               Home
+            </NavLink>
+            <NavLink to="/products" className={tabClass}>
+              Products
             </NavLink>
             <NavLink to="/blog" className={tabClass}>
               Blog
@@ -72,11 +72,11 @@ export default function Header({
         </div>
 
         <nav className="mt-2 flex md:hidden items-center justify-center gap-2">
-          <NavLink to="/products" className={tabClass}>
-            Products
-          </NavLink>
           <NavLink to="/" end className={tabClass}>
             Home
+          </NavLink>
+          <NavLink to="/products" className={tabClass}>
+            Products
           </NavLink>
           <NavLink to="/blog" className={tabClass}>
             Blog
