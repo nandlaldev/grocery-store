@@ -54,7 +54,7 @@ export default function Footer() {
             <p className="mt-3 text-sm text-gray-600">
               Follow us for offers, fresh updates, and healthy shopping tips.
             </p>
-            <div className="mt-4 flex flex-col items-start gap-2">
+            <div className="mt-4 flex flex-row items-center gap-2 flex-wrap">
               <a
                 href="#"
                 aria-label="Facebook"
