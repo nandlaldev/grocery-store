@@ -159,6 +159,74 @@ export default function Home() {
             ))}
           </div>
         )}
+
+        <section className="mt-10 bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Why Shop With Us</h2>
+              <p className="mt-2 text-gray-600">
+                Fresh products, fast delivery, and hassle-free experience.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="flex gap-3 items-start rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 16V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12" />
+                  <path d="M22 16H2" />
+                  <path d="M18 20H6" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Fast Delivery</h3>
+                <p className="text-sm text-gray-600 mt-1">Quick processing and on-time delivery updates.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-start rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Fresh Quality</h3>
+                <p className="text-sm text-gray-600 mt-1">Carefully selected groceries you can trust.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-start rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15V7a2 2 0 0 0-2-2H7l-4 4v8a2 2 0 0 0 2 2h8" />
+                  <path d="M8 13h8" />
+                  <path d="M8 10h6" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Easy Returns</h3>
+                <p className="text-sm text-gray-600 mt-1">Simple support for order-related issues.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-start rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <path d="M12 11v6" />
+                  <path d="M12 7h.01" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Secure Checkout</h3>
+                <p className="text-sm text-gray-600 mt-1">Your information stays protected.</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       {toast && (
