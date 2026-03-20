@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { productsApi } from '../lib/api';
 import { useCart } from '../contexts/CartContext';
@@ -38,38 +38,38 @@ export default function Products() {
   const [toast, setToast] = useState<string | null>(null);
 
   const PAGE_SIZE = 8;
+  const [totalCount, setTotalCount] = useState(0);
 
-  const fetchData = async () => {
+  const fetchData = async (targetPage: number) => {
     setLoading(true);
     const [pRes, cRes] = await Promise.all([
-      productsApi.list({ category: category || undefined, search: search || undefined }),
+      productsApi.list({
+        category: category || undefined,
+        search: search || undefined,
+        page: targetPage,
+        limit: PAGE_SIZE,
+        sort: sortBy,
+      }),
       productsApi.categories(),
     ]);
-    setProducts(Array.isArray(pRes.data) ? pRes.data : []);
+    setProducts(Array.isArray(pRes.data?.items) ? pRes.data.items : []);
+    setTotalCount(typeof pRes.data?.total === 'number' ? pRes.data.total : 0);
     setCategories(Array.isArray(cRes.data) ? cRes.data : []);
     setLoading(false);
   };
 
   useEffect(() => {
     setPage(1);
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, category, sortBy]);
 
-  const sortedProducts = useMemo(() => {
-    if (sortBy === 'price_asc') return [...products].sort((a, b) => a.price - b.price);
-    if (sortBy === 'price_desc') return [...products].sort((a, b) => b.price - a.price);
-    // relevance/newest: keep API order (newest first)
-    return products;
-  }, [products, sortBy]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PAGE_SIZE));
-
   useEffect(() => {
-    setPage((p) => clampPage(p, totalPages));
-  }, [totalPages]);
+    const safePage = clampPage(page, Math.max(1, Math.ceil(totalCount / PAGE_SIZE)));
+    fetchData(safePage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, search, category, sortBy]);
 
-  const currentProducts = sortedProducts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const currentProducts = products;
 
   const handleAddToCart = async (productId: string) => {
     if (!token) {

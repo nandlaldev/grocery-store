@@ -48,14 +48,26 @@ export const authApi = {
 };
 
 export const productsApi = {
-  list: (params?: { category?: string; search?: string }) => {
+  list: (params?: {
+    category?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+    sort?: 'newest' | 'relevance' | 'price_asc' | 'price_desc';
+  }) => {
     const q = new URLSearchParams();
     if (params?.category) q.set('category', params.category);
     if (params?.search) q.set('search', params.search);
+    if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.sort) q.set('sort', params.sort);
     const query = q.toString();
-    return api<Array<{ _id: string; name: string; price: number; description: string; category: string; imageUrl: string }>>(
-      `/api/products${query ? `?${query}` : ''}`
-    );
+    return api<{
+      items: Array<{ _id: string; name: string; price: number; description: string; category: string; imageUrl: string }>;
+      total: number;
+      page: number;
+      limit: number;
+    }>(`/api/products${query ? `?${query}` : ''}`);
   },
   categories: () =>
     api<string[]>('/api/products/categories'),

@@ -11,6 +11,7 @@ export default function Home() {
   const [products, setProducts] = useState<
     Array<{ _id: string; name: string; price: number; description: string; category: string; imageUrl: string }>
   >([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [categories, setCategories] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
@@ -20,6 +21,7 @@ export default function Home() {
   const [banners, setBanners] = useState<Array<{ id: string; imageUrl: string; title: string; subtitle: string; order: number }>>([]);
   const { items, addToCart, updateQty, loading: cartLoading } = useCart();
   const { token } = useAuth();
+  const PAGE_SIZE = 8;
 
   useEffect(() => {
     configApi.get().then(({ data }) => {
@@ -30,14 +32,21 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       const [pRes, cRes] = await Promise.all([
-        productsApi.list({ category: category || undefined, search: search || undefined }),
+        productsApi.list({
+          category: category || undefined,
+          search: search || undefined,
+          page: 1,
+          limit: PAGE_SIZE,
+          sort: sortBy,
+        }),
         productsApi.categories(),
       ]);
-      if (pRes.data) setProducts(pRes.data);
+      if (pRes.data?.items) setProducts(pRes.data.items);
+      if (typeof pRes.data?.total === 'number') setTotalCount(pRes.data.total);
       if (cRes.data) setCategories(cRes.data);
       setLoading(false);
     })();
-  }, [category, search]);
+  }, [category, search, sortBy]);
 
   const handleAddToCart = async (productId: string) => {
     if (!token) {
@@ -48,16 +57,9 @@ export default function Home() {
     setToast('Added to cart');
   };
 
-  const sortedProducts = (() => {
-    if (sortBy === 'price_asc') return [...products].sort((a, b) => a.price - b.price);
-    if (sortBy === 'price_desc') return [...products].sort((a, b) => b.price - a.price);
-    // relevance/newest: API already returns newest first (createdAt desc)
-    return products;
-  })();
-
-  const topProducts = sortedProducts.slice(0, 4);
-  const bottomProducts = sortedProducts.slice(4, 8);
-  const canViewMore = sortedProducts.length > 8;
+  const topProducts = products.slice(0, 4);
+  const bottomProducts = products.slice(4, 8);
+  const canViewMore = totalCount > PAGE_SIZE;
 
   const viewMoreHref = (() => {
     const params = new URLSearchParams();

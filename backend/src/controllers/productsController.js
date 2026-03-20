@@ -6,14 +6,63 @@ function getImageUrl(req) {
   return req.file ? `${base}/uploads/${req.file.filename}` : '';
 }
 
+function escapeRegExp(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export async function listProducts(req, res) {
   try {
     const { category, search } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 8));
+    const skip = (page - 1) * limit;
+
+    const sort = String(req.query.sort || 'newest');
+
     const filter = {};
-    if (category) filter.category = new RegExp(category, 'i');
-    if (search) filter.name = new RegExp(search, 'i');
-    const products = await Product.find(filter).sort({ createdAt: -1 }).lean();
-    return res.json(products);
+    if (category) filter.category = new RegExp(escapeRegExp(category), 'i');
+    if (search) filter.name = new RegExp(escapeRegExp(search), 'i');
+
+    const total = await Product.countDocuments(filter);
+
+    let items = [];
+
+    if (sort === 'price_asc' || sort === 'price_desc') {
+      const dir = sort === 'price_asc' ? 1 : -1;
+      items = await Product.find(filter)
+        .sort({ price: dir, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+    } else if (sort === 'relevance' && search) {
+      const escaped = escapeRegExp(search);
+      items = await Product.aggregate([
+        { $match: filter },
+        {
+          $addFields: {
+            relevanceScore: {
+              $cond: [
+                { $regexMatch: { input: '$name', regex: '^' + escaped, options: 'i' } },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+        { $sort: { relevanceScore: -1, createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+      ]);
+    } else {
+      // newest/default
+      items = await Product.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+    }
+
+    return res.json({ items, total, page, limit });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
