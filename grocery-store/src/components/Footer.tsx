@@ -1,7 +1,55 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { configApi } from '../lib/api';
+
+type FooterConfig = {
+  brandName?: string;
+  brandDescription?: string;
+  supportLinks?: string[];
+  supportEmail?: string;
+  supportPhone?: string;
+  supportHours?: string;
+  social?: {
+    facebookUrl?: string;
+    instagramUrl?: string;
+    twitterUrl?: string;
+    youtubeUrl?: string;
+  };
+} | null;
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>(null);
+
+  useEffect(() => {
+    configApi.get().then(({ data }) => {
+      setFooterConfig((data?.footerConfig as FooterConfig) ?? null);
+    });
+  }, []);
+
+  const brandName = footerConfig?.brandName || 'Grocery';
+  const brandDescription =
+    footerConfig?.brandDescription ||
+    'Fresh groceries delivered fast, with trusted quality and smooth ordering.';
+  const supportEmail = footerConfig?.supportEmail || 'support@grocery.com';
+  const supportPhone = footerConfig?.supportPhone || '+91 98765 43210';
+  const supportHours = footerConfig?.supportHours || 'Mon-Sat, 9:00 AM - 8:00 PM';
+
+  const social = footerConfig?.social || {};
+
+  const quickLinks = [
+    { label: 'Home', href: '/' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'About', href: '/about' },
+    { label: 'Team', href: '/team' },
+    { label: 'Contact', href: '/contact' },
+    { label: 'FAQ', href: '/faq' },
+    { label: 'Cart', href: '/cart' },
+    { label: 'My Orders', href: '/orders' },
+  ];
+  const defaultSupportLinks = ['Help Center', 'Shipping & Delivery', 'Terms & Privacy', 'Returns Policy'];
+
+  const supportLinks = footerConfig?.supportLinks?.length ? footerConfig.supportLinks : defaultSupportLinks;
 
   return (
     <footer className="mt-10 border-t border-gray-200 bg-white/95 backdrop-blur">
@@ -9,43 +57,52 @@ export default function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <Link to="/" className="text-2xl font-bold text-primary">
-              Grocery
+              {brandName}
             </Link>
             <p className="mt-3 text-sm leading-6 text-gray-600">
-              Fresh groceries delivered fast, with trusted quality and smooth ordering.
+              {brandDescription}
             </p>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold tracking-wide text-gray-900 uppercase">Quick Links</h3>
             <ul className="mt-3 space-y-2 text-sm">
-              <li><Link to="/" className="text-gray-600 hover:text-primary">Home</Link></li>
-              <li><Link to="/blog" className="text-gray-600 hover:text-primary">Blog</Link></li>
-              <li><Link to="/about" className="text-gray-600 hover:text-primary">About</Link></li>
-              <li><Link to="/team" className="text-gray-600 hover:text-primary">Team</Link></li>
-              <li><Link to="/contact" className="text-gray-600 hover:text-primary">Contact</Link></li>
-              <li><Link to="/faq" className="text-gray-600 hover:text-primary">FAQ</Link></li>
-              <li><Link to="/cart" className="text-gray-600 hover:text-primary">Cart</Link></li>
-              <li><Link to="/orders" className="text-gray-600 hover:text-primary">My Orders</Link></li>
+              {quickLinks.map((l, idx) => {
+                const label = (l?.label || '').trim();
+                const href = (l?.href || '/').trim();
+                const isInternal = href.startsWith('/');
+                return (
+                  <li key={`${label}-${idx}`}>
+                    {isInternal ? (
+                      <Link to={href} className="text-gray-600 hover:text-primary">
+                        {label}
+                      </Link>
+                    ) : (
+                      <a href={href} className="text-gray-600 hover:text-primary">
+                        {label}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold tracking-wide text-gray-900 uppercase">Support</h3>
             <ul className="mt-3 space-y-2 text-sm text-gray-600">
-              <li>Help Center</li>
-              <li>Shipping & Delivery</li>
-              <li>Terms & Privacy</li>
-              <li>Returns Policy</li>
+              {supportLinks.map((s, idx) => (
+                <li key={`${s}-${idx}`}>{s}</li>
+              ))}
             </ul>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold tracking-wide text-gray-900 uppercase">Contact</h3>
             <ul className="mt-3 space-y-2 text-sm text-gray-600">
-              <li>support@grocery.com</li>
-              <li>+91 98765 43210</li>
-              <li>Mon-Sat, 9:00 AM - 8:00 PM</li>
+              <li>{supportEmail}</li>
+              <li>{supportPhone}</li>
+              <li>{supportHours}</li>
             </ul>
           </div>
 
@@ -54,9 +111,9 @@ export default function Footer() {
             <p className="mt-3 text-sm text-gray-600">
               Follow us for offers, fresh updates, and healthy shopping tips.
             </p>
-            <div className="mt-4 flex flex-row items-center gap-2 flex-wrap">
+            <div className="mt-4 flex flex-col items-start gap-2">
               <a
-                href="#"
+                href={social.facebookUrl || '#'}
                 aria-label="Facebook"
                 className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:border-primary hover:text-primary transition text-gray-600"
               >
@@ -65,7 +122,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href={social.instagramUrl || '#'}
                 aria-label="Instagram"
                 className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:border-primary hover:text-primary transition text-gray-600"
               >
@@ -76,7 +133,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href={social.twitterUrl || '#'}
                 aria-label="Twitter"
                 className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:border-primary hover:text-primary transition text-gray-600"
               >
@@ -85,7 +142,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href={social.youtubeUrl || '#'}
                 aria-label="YouTube"
                 className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:border-primary hover:text-primary transition text-gray-600"
               >
@@ -99,7 +156,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-5 border-t border-gray-100 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-gray-500">© {year} Grocery. All rights reserved.</p>
+          <p className="text-xs text-gray-500">© {year} {brandName}. All rights reserved.</p>
           <p className="text-xs text-gray-500">Made with care for better everyday shopping.</p>
         </div>
       </div>

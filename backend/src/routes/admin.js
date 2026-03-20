@@ -39,6 +39,9 @@ import {
   renderNewFaq,
   renderNewTeam,
   updateFaq,
+  renderFooterConfig,
+  saveFooterConfig,
+  removeFooterConfig,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -116,5 +119,9 @@ router.get('/faqs/edit/:id', requireAdminSession, renderEditFaq);
 router.post('/faqs', requireAdminSession, createFaq);
 router.post('/faqs/:id', requireAdminSession, updateFaq);
 router.post('/faqs/:id/delete', requireAdminSession, deleteFaq);
+
+router.get('/app-config/footer', requireAdminSession, renderFooterConfig);
+router.post('/app-config/footer', requireAdminSession, saveFooterConfig);
+router.post('/app-config/footer/delete', requireAdminSession, removeFooterConfig);
 
 export default router;

@@ -24,12 +24,29 @@
     .btn-danger { background: #b91c1c; color: #fff; }
     .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
     .banner-thumb { width: 120px; height: 56px; object-fit: cover; border-radius: 4px; }
+
+    .subnav {
+      display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem;
+      padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff;
+    }
+    .subnav a {
+      text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.9rem;
+      color: #0f766e; border: 1px solid transparent;
+    }
+    .subnav a.active {
+      background: rgba(15,118,110,0.08); border-color: rgba(15,118,110,0.35);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'app-config' }) %>
     <main class="admin-main">
+      <div class="subnav">
+        <a href="/admin/app-config" class="active">Banners</a>
+        <a href="/admin/app-config/footer" class="">Footer Management</a>
+      </div>
       <h1>Home Banners</h1>
       <p style="color:#64748b;font-size:0.9rem;">Banners appear in the slider on the website home page. Order determines display order.</p>
       <p><a href="/admin/banners/new" class="btn btn-primary">Add Banner</a></p>

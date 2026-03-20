@@ -6,6 +6,8 @@ import Banner from '../models/Banner.js';
 import Blog from '../models/Blog.js';
 import Team from '../models/Team.js';
 import Faq from '../models/Faq.js';
+import FooterConfig from '../models/FooterConfig.js';
+import { upsertFooterConfig, deleteFooterConfig } from './footerConfigController.js';
 
 function slugify(s) {
   return String(s)
@@ -377,4 +379,22 @@ export async function updateFaq(req, res) {
 export async function deleteFaq(req, res) {
   await Faq.findByIdAndDelete(req.params.id);
   return res.redirect('/admin/faqs');
+}
+
+export async function renderFooterConfig(req, res) {
+  const footerConfig = await FooterConfig.findOne({}).sort({ createdAt: -1 }).lean();
+  return res.render('admin/footer-config', {
+    footerConfig,
+    ok: req.query.ok === '1',
+    deleted: req.query.deleted === '1',
+    error: req.query.error ? String(req.query.error) : null,
+  });
+}
+
+export async function saveFooterConfig(req, res) {
+  return upsertFooterConfig(req, res);
+}
+
+export async function removeFooterConfig(req, res) {
+  return deleteFooterConfig(req, res);
 }

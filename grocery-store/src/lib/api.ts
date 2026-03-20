@@ -110,7 +110,25 @@ export type BannerItem = {
 };
 
 export const configApi = {
-  get: () => api<{ banners: BannerItem[] }>('/api/config'),
+  get: () =>
+    api<{
+      banners: BannerItem[];
+      footerConfig: {
+        brandName?: string;
+        brandDescription?: string;
+        quickLinks?: Array<{ label?: string; href?: string }>;
+        supportLinks?: string[];
+        supportEmail?: string;
+        supportPhone?: string;
+        supportHours?: string;
+        social?: {
+          facebookUrl?: string;
+          instagramUrl?: string;
+          twitterUrl?: string;
+          youtubeUrl?: string;
+        };
+      } | null;
+    }>('/api/config'),
 };
 
 export type BlogPost = {
