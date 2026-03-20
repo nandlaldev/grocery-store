@@ -17,7 +17,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [banners, setBanners] = useState<Array<{ id: string; imageUrl: string; title: string; subtitle: string; order: number }>>([]);
-  const { addToCart, loading: cartLoading } = useCart();
+  const { items, addToCart, updateQty, loading: cartLoading } = useCart();
   const { token } = useAuth();
 
   useEffect(() => {
@@ -117,13 +117,42 @@ export default function Home() {
                   <p className="text-sm text-gray-500 line-clamp-2 mt-0.5">{p.description || '—'}</p>
                   <div className="mt-2 flex items-center justify-between">
                     <span className="font-semibold text-primary">₹{p.price}</span>
-                    <button
-                      onClick={() => handleAddToCart(p._id)}
-                      disabled={cartLoading}
-                      className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark disabled:opacity-50"
-                    >
-                      Add
-                    </button>
+                    {(() => {
+                      const qty = items.find((i) => i.productId === p._id)?.quantity ?? 0;
+                      if (qty === 0) {
+                        return (
+                          <button
+                            onClick={() => handleAddToCart(p._id)}
+                            disabled={cartLoading}
+                            className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark disabled:opacity-50"
+                          >
+                            Add
+                          </button>
+                        );
+                      }
+
+                      return (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => updateQty(p._id, qty - 1)}
+                            disabled={cartLoading}
+                            className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                          >
+                            −
+                          </button>
+                          <span className="w-6 text-center font-semibold text-gray-900">{qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQty(p._id, qty + 1)}
+                            disabled={cartLoading}
+                            className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                          >
+                            +
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
