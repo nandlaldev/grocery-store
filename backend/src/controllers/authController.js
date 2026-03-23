@@ -11,15 +11,28 @@ export async function register(req, res) {
     if (!errors.isEmpty()) {
       return res.status(400).json({ error: errors.array()[0]?.msg, errors: errors.array() });
     }
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, phone } = req.body;
     const existing = await User.findOne({ email });
     if (existing) {
       return res.status(400).json({ error: 'Email already registered' });
     }
-    const user = await User.create({ fullName, email, password, role: 'customer' });
+    const user = await User.create({
+      fullName,
+      email,
+      password,
+      phone: phone ? String(phone).trim() : undefined,
+      role: 'customer',
+    });
     const token = signToken(user._id);
     return res.status(201).json({
-      user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone || '',
+        avatarUrl: user.avatarUrl || '',
+        role: user.role,
+      },
       token,
     });
   } catch (err) {
@@ -40,7 +53,14 @@ export async function login(req, res) {
     }
     const token = signToken(user._id);
     return res.json({
-      user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone || '',
+        avatarUrl: user.avatarUrl || '',
+        role: user.role,
+      },
       token,
     });
   } catch (err) {
@@ -62,8 +82,50 @@ export async function me(req, res) {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-password').lean();
     if (!user) return res.status(401).json({ error: 'User not found' });
-    return res.json({ id: user._id, fullName: user.fullName, email: user.email, role: user.role });
+    return res.json({
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone || '',
+      avatarUrl: user.avatarUrl || '',
+      role: user.role,
+    });
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+
+export async function updateProfile(req, res) {
+  try {
+    if (!req.userId) return res.status(401).json({ error: 'Authentication required' });
+
+    const fullName = String(req.body.fullName || '').trim();
+    if (!fullName) return res.status(400).json({ error: 'Full name required' });
+
+    const phone = req.body.phone !== undefined ? String(req.body.phone).trim() : undefined;
+
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.fullName = fullName;
+    if (phone !== undefined) user.phone = phone;
+    if (req.file) {
+      const base = req.protocol + '://' + req.get('host');
+      user.avatarUrl = `${base}/uploads/${req.file.filename}`;
+    }
+
+    await user.save();
+
+    return res.json({
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone || '',
+      avatarUrl: user.avatarUrl || '',
+      role: user.role,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'Failed to update profile' });
   }
 }

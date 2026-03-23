@@ -15,6 +15,7 @@ import Products from './pages/Products';
 import Team from './pages/Team';
 import Contact from './pages/Contact';
 import Faq from './pages/Faq';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             <Route path="/team" element={<Team />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<Faq />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </CartProvider>
       </AuthProvider>

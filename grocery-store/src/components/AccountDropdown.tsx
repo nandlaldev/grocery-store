@@ -41,7 +41,11 @@ export default function AccountDropdown() {
         aria-haspopup="true"
       >
         {token && user ? (
-          <span>{initials}</span>
+          user.avatarUrl ? (
+            <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full rounded-full object-cover" />
+          ) : (
+            <span>{initials}</span>
+          )
         ) : (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -61,6 +65,13 @@ export default function AccountDropdown() {
                 <p className="text-sm font-medium text-gray-900 truncate">{user.fullName}</p>
                 <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
+              <Link
+                to="/profile"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setOpen(false)}
+              >
+                My Profile
+              </Link>
               <Link
                 to="/orders"
                 className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"

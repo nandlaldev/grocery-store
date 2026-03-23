@@ -9,8 +9,9 @@ export async function api<T>(
   options: RequestInit = {}
 ): Promise<{ data?: T; error?: string }> {
   const token = getToken();
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string>),
   };
   if (token) (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
@@ -33,18 +34,28 @@ export async function api<T>(
 
 export const authApi = {
   me: () =>
-    api<{ id: string; fullName: string; email: string; role: string }>('/api/auth/me'),
+    api<{ id: string; fullName: string; email: string; phone?: string; avatarUrl?: string; role: string }>('/api/auth/me'),
   register: (body: { fullName: string; email: string; password: string }) =>
-    api<{ user: { id: string; fullName: string; email: string; role: string }; token: string }>(
+    api<{ user: { id: string; fullName: string; email: string; phone?: string; avatarUrl?: string; role: string }; token: string }>(
       '/api/auth/register',
       { method: 'POST', body: JSON.stringify(body) }
     ),
   login: (body: { email: string; password: string }) =>
-    api<{ user: { id: string; fullName: string; email: string; role: string }; token: string }>(
+    api<{ user: { id: string; fullName: string; email: string; phone?: string; avatarUrl?: string; role: string }; token: string }>(
       '/api/auth/login',
       { method: 'POST', body: JSON.stringify(body) }
     ),
   logout: () => api('/api/auth/logout', { method: 'POST' }),
+  updateProfile: (body: { fullName: string; phone?: string; avatar?: File | null }) => {
+    const fd = new FormData();
+    fd.append('fullName', body.fullName);
+    if (body.phone !== undefined) fd.append('phone', body.phone);
+    if (body.avatar) fd.append('avatar', body.avatar);
+    return api<{ id: string; fullName: string; email: string; phone?: string; avatarUrl?: string; role: string }>(
+      '/api/auth/profile',
+      { method: 'PUT', body: fd }
+    );
+  },
 };
 
 export const productsApi = {

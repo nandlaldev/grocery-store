@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 
-type User = { id: string; fullName: string; email: string; role: string } | null;
+type User = { id: string; fullName: string; email: string; phone?: string; avatarUrl?: string; role: string } | null;
 
 const AuthContext = createContext<{
   user: User;

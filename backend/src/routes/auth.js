@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { login, logout, me, register } from '../controllers/authController.js';
+import { auth } from '../middleware/auth.js';
+import { upload } from '../middleware/upload.js';
+import { login, logout, me, register, updateProfile } from '../controllers/authController.js';
 
 const router = Router();
 
@@ -26,5 +28,13 @@ router.post(
 router.post('/logout', logout);
 
 router.get('/me', me);
+
+router.put(
+  '/profile',
+  auth,
+  upload.single('avatar'),
+  [body('fullName').trim().notEmpty().withMessage('Full name required'), body('phone').optional().trim()],
+  updateProfile
+);
 
 export default router;
