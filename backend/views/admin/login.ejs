@@ -4,9 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Login – Grocery</title>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('adminTheme') === 'light') {
+          document.documentElement.classList.add('admin-theme-light');
+        }
+      } catch (_) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/admin-assets/admin.css" />
+  <script src="/admin-assets/admin-theme.js" defer></script>
 </head>
 <body class="admin-body login-page">
+  <button type="button" class="admin-theme-toggle admin-theme-toggle--floating" data-admin-theme-toggle aria-pressed="false" title="Theme">
+    <span class="admin-theme-toggle__sun" aria-hidden="true">☀️</span>
+    <span class="admin-theme-toggle__moon" aria-hidden="true">🌙</span>
+    <span class="admin-theme-toggle__text">Theme</span>
+  </button>
   <div class="login-card">
     <h1>Admin Login</h1>
     <form method="post" action="/admin/login">

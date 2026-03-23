@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= typeof title !== 'undefined' ? title : 'Admin' %> – Grocery Admin</title>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('adminTheme') === 'light') {
+          document.documentElement.classList.add('admin-theme-light');
+        }
+      } catch (_) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/admin-assets/admin.css" />
+  <script src="/admin-assets/admin-theme.js" defer></script>
 </head>
 <body class="admin-body">

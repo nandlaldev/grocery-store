@@ -13,6 +13,11 @@
   <% if (typeof headerTitle !== 'undefined' && headerTitle) { %>
   <div class="admin-header-title"><%= headerTitle %></div>
   <% } %>
+  <button type="button" class="admin-theme-toggle" data-admin-theme-toggle aria-pressed="false" title="Theme">
+    <span class="admin-theme-toggle__sun" aria-hidden="true">☀️</span>
+    <span class="admin-theme-toggle__moon" aria-hidden="true">🌙</span>
+    <span class="admin-theme-toggle__text">Theme</span>
+  </button>
   <details class="admin-header-menu">
     <summary class="admin-header-trigger">
       <% if (_au && _au.avatarUrl) { %>
