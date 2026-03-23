@@ -21,6 +21,7 @@ import teamRoutes from './routes/team.js';
 import faqRoutes from './routes/faqs.js';
 import adminRoutes from './routes/admin.js';
 import ticketRoutes from './routes/tickets.js';
+import wishlistRoutes from './routes/wishlist.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -55,6 +56,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/faqs', faqRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 app.use('/admin', adminRoutes);
 
 app.use((err, _req, res, _next) => {

@@ -4,6 +4,7 @@ import { productsApi, configApi } from '../lib/api';
 import BannerSlider from '../components/BannerSlider';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -21,6 +22,7 @@ export default function Home() {
   const [banners, setBanners] = useState<Array<{ id: string; imageUrl: string; title: string; subtitle: string; order: number }>>([]);
   const { items, addToCart, updateQty, loading: cartLoading } = useCart();
   const { token } = useAuth();
+  const { isWishlisted, toggleWishlist } = useWishlist();
   const PAGE_SIZE = 8;
 
   useEffect(() => {
@@ -55,6 +57,19 @@ export default function Home() {
     }
     await addToCart(productId);
     setToast('Added to cart');
+  };
+
+  const handleWishlistToggle = async (productId: string) => {
+    if (!token) {
+      setToast('Please login to use wishlist');
+      return;
+    }
+    const { error, inWishlist } = await toggleWishlist(productId);
+    if (error) {
+      setToast(error);
+      return;
+    }
+    setToast(inWishlist ? 'Added to wishlist' : 'Removed from wishlist');
   };
 
   const topProducts = products.slice(0, 4);
@@ -143,8 +158,22 @@ export default function Home() {
               {topProducts.map((p) => (
                 <div
                   key={p._id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
+                  className="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
                 >
+                  <button
+                    type="button"
+                    onClick={() => handleWishlistToggle(p._id)}
+                    className={`absolute top-2 right-2 z-10 w-9 h-9 rounded-full border flex items-center justify-center ${
+                      isWishlisted(p._id)
+                        ? 'bg-red-50 border-red-200 text-red-600'
+                        : 'bg-white/90 border-gray-200 text-gray-600 hover:text-red-600'
+                    }`}
+                    aria-label="Toggle wishlist"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill={isWishlisted(p._id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                  </button>
                   <Link to={`/product/${p._id}`} className="block aspect-square bg-gray-100">
                     {p.imageUrl ? (
                       <img
@@ -214,8 +243,22 @@ export default function Home() {
               {bottomProducts.map((p) => (
                 <div
                   key={p._id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
+                  className="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition"
                 >
+                  <button
+                    type="button"
+                    onClick={() => handleWishlistToggle(p._id)}
+                    className={`absolute top-2 right-2 z-10 w-9 h-9 rounded-full border flex items-center justify-center ${
+                      isWishlisted(p._id)
+                        ? 'bg-red-50 border-red-200 text-red-600'
+                        : 'bg-white/90 border-gray-200 text-gray-600 hover:text-red-600'
+                    }`}
+                    aria-label="Toggle wishlist"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill={isWishlisted(p._id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                  </button>
                   <Link to={`/product/${p._id}`} className="block aspect-square bg-gray-100">
                     {p.imageUrl ? (
                       <img

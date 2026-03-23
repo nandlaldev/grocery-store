@@ -220,3 +220,21 @@ export type FaqItem = {
 export const faqApi = {
   list: () => api<FaqItem[]>('/api/faqs'),
 };
+
+export type WishlistProduct = {
+  _id: string;
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  imageUrl: string;
+};
+
+export const wishlistApi = {
+  list: () => api<{ products: WishlistProduct[]; productIds: string[] }>('/api/wishlist'),
+  toggle: (productId: string) =>
+    api<{ ok: boolean; inWishlist: boolean; productIds: string[] }>(
+      `/api/wishlist/${productId}/toggle`,
+      { method: 'POST' }
+    ),
+};

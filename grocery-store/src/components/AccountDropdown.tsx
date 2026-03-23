@@ -79,6 +79,13 @@ export default function AccountDropdown() {
               >
                 My Orders
               </Link>
+              <Link
+                to="/wishlist"
+                className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setOpen(false)}
+              >
+                Wishlist
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}
