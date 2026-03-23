@@ -186,7 +186,7 @@ export async function renderUsers(req, res) {
   if (role === 'admin' || role === 'customer') filter.role = role;
   const rx = searchRegex(q);
   if (rx) {
-    filter.$or = [{ fullName: rx }, { email: rx }];
+    filter.$or = [{ fullName: rx }, { email: rx }, { phone: rx }];
   }
 
   const [users, total] = await Promise.all([
