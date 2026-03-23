@@ -1,0 +1,98 @@
+<%- include('partials/head', { title: 'Product Management' }) %>
+  <div class="admin-wrap">
+    <%- include('partials/sidebar', { active: 'products' }) %>
+    <div class="admin-content">
+    <%- include('partials/header') %>
+    <main class="admin-main">
+      <div class="admin-page-header">
+        <h1>Product Management</h1>
+        <p class="muted">Search, filter by category or stock, and manage inventory.</p>
+      </div>
+
+      <div class="top-actions">
+        <a href="/admin/products/new" class="btn btn-primary">Add Product</a>
+      </div>
+
+      <form class="table-toolbar" method="get" action="/admin/products">
+        <label>Search
+          <input type="search" name="q" value="<%= filters.q %>" placeholder="Name, category, description…" autocomplete="off" />
+        </label>
+        <label>Category
+          <select name="category">
+            <option value="">All categories</option>
+            <% (categories || []).forEach(function(c) { %>
+              <option value="<%= c %>" <%= filters.category === c ? 'selected' : '' %>><%= c %></option>
+            <% }); %>
+          </select>
+        </label>
+        <label>Stock
+          <select name="stock">
+            <option value="" <%= !filters.stock ? 'selected' : '' %>>All</option>
+            <option value="low" <%= filters.stock === 'low' ? 'selected' : '' %>>Low (1–10)</option>
+            <option value="out" <%= filters.stock === 'out' ? 'selected' : '' %>>Out of stock</option>
+          </select>
+        </label>
+        <label>Per page
+          <select name="limit">
+            <% [10, 20, 50].forEach(function(n) { %>
+              <option value="<%= n %>" <%= pagination && pagination.limit === n ? 'selected' : '' %>><%= n %></option>
+            <% }); %>
+          </select>
+        </label>
+        <div class="toolbar-actions">
+          <button type="submit" class="btn btn-primary">Apply</button>
+          <a href="/admin/products" class="btn btn-ghost">Reset</a>
+        </div>
+      </form>
+
+      <% if (!products || products.length === 0) { %>
+        <div class="table-card">
+          <div class="empty-state">
+            <% if (filters.q || filters.category || filters.stock) { %>
+              No products match your filters. <a href="/admin/products">Clear filters</a> or <a href="/admin/products/new">add a product</a>.
+            <% } else { %>
+              No products yet. <a href="/admin/products/new">Add one</a>.
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="table-card">
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% products.forEach(function(p) { %>
+                <tr>
+                  <td><% if (p.imageUrl) { %><img class="thumb" src="<%= p.imageUrl %>" alt="" /><% } else { %>—<% } %></td>
+                  <td><%= p.name %></td>
+                  <td><%= p.category %></td>
+                  <td>₹<%= p.price %></td>
+                  <td><%= p.qty ?? 0 %></td>
+                  <td>
+                    <a href="/admin/products/edit/<%= p._id %>" class="btn btn-primary btn-sm">Edit</a>
+                    <form method="post" action="/admin/products/<%= p._id %>/delete" style="display:inline;" onsubmit="return confirm('Delete this product?');">
+                      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <%- include('partials/pagination') %>
+        </div>
+      <% } %>
+    </main>
+    </div>
+  </div>
+</body>
+</html>

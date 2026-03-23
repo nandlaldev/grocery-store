@@ -28,7 +28,7 @@
           <% if (product && product.imageUrl) { %><p><img class="thumb" src="<%= product.imageUrl %>" alt="" /> Current image</p><% } %>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary"><%= product ? 'Update' : 'Create' %> Product</button>
-            <a href="/admin" class="btn btn-ghost">Cancel</a>
+            <a href="/admin/products" class="btn btn-ghost">Cancel</a>
           </div>
         </form>
       </div>

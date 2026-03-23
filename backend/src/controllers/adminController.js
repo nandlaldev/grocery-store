@@ -24,7 +24,7 @@ function getUploadedImageUrl(req) {
 }
 
 export function renderLogin(req, res) {
-  if (req.session?.adminId) return res.redirect('/admin');
+  if (req.session?.adminId) return res.redirect('/admin/products');
   return res.render('admin/login', { error: null });
 }
 
@@ -39,11 +39,46 @@ export async function login(req, res) {
   }
   if (!req.session) req.session = {};
   req.session.adminId = user._id.toString();
-  return res.redirect('/admin');
+  return res.redirect('/admin/products');
 }
 
 export function logout(req, res) {
   return req.session.destroy(() => res.redirect('/admin/login'));
+}
+
+export async function renderDashboardHome(_req, res) {
+  const [
+    productsCount,
+    usersCount,
+    totalOrders,
+    pendingOrders,
+    lowStockProducts,
+    recentOrders,
+  ] = await Promise.all([
+    Product.countDocuments(),
+    User.countDocuments({ role: 'customer' }),
+    Order.countDocuments(),
+    Order.countDocuments({ status: 'pending' }),
+    Product.countDocuments({ qty: { $lte: 10 } }),
+    Order.find().sort({ createdAt: -1 }).limit(5).lean(),
+  ]);
+
+  const revenue = await Order.aggregate([
+    { $match: { status: { $in: ['confirmed', 'delivered'] } } },
+    { $group: { _id: null, total: { $sum: '$total' } } },
+  ]);
+
+  return res.render('admin/dashboard', {
+    stats: {
+      productsCount,
+      usersCount,
+      totalOrders,
+      pendingOrders,
+      lowStockProducts,
+      revenue: revenue[0]?.total || 0,
+    },
+    recentOrders,
+  });
 }
 
 export async function renderDashboard(req, res) {
@@ -71,7 +106,7 @@ export async function renderDashboard(req, res) {
   ]);
 
   const pagination = paginationMeta(req, page, limit, total, ['q', 'category', 'stock', 'limit']);
-  return res.render('admin/dashboard', {
+  return res.render('admin/products', {
     products,
     pagination,
     filters: { q, category, stock },
@@ -86,7 +121,7 @@ export async function renderNewProduct(_req, res) {
 
 export async function renderEditProduct(req, res) {
   const product = await Product.findById(req.params.id).lean();
-  if (!product) return res.redirect('/admin');
+  if (!product) return res.redirect('/admin/products');
   const categories = await Product.distinct('category');
   return res.render('admin/product-form', { product, categories });
 }
@@ -110,12 +145,12 @@ export async function createProduct(req, res) {
     category: req.body.category,
     imageUrl,
   });
-  return res.redirect('/admin');
+  return res.redirect('/admin/products');
 }
 
 export async function updateProduct(req, res) {
   const product = await Product.findById(req.params.id);
-  if (!product) return res.redirect('/admin');
+  if (!product) return res.redirect('/admin/products');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const categories = await Product.distinct('category');
@@ -134,12 +169,12 @@ export async function updateProduct(req, res) {
     product.imageUrl = getUploadedImageUrl(req);
   }
   await product.save();
-  return res.redirect('/admin');
+  return res.redirect('/admin/products');
 }
 
 export async function deleteProduct(req, res) {
   await Product.findByIdAndDelete(req.params.id);
-  return res.redirect(safeAdminRedirect(req, '/admin'));
+  return res.redirect(safeAdminRedirect(req, '/admin/products'));
 }
 
 export async function renderUsers(req, res) {

@@ -14,6 +14,7 @@ import {
   renderAppConfig,
   renderBlogs,
   renderDashboard,
+  renderDashboardHome,
   renderEditBanner,
   renderEditBlog,
   renderEditProduct,
@@ -65,7 +66,8 @@ router.get('/logout', logout);
 const secured = Router();
 secured.use(requireAdminSession, attachAdminUser);
 
-secured.get('/', renderDashboard);
+secured.get('/', renderDashboardHome);
+secured.get('/products', renderDashboard);
 secured.get('/products/new', renderNewProduct);
 secured.get('/products/edit/:id', renderEditProduct);
 

@@ -483,6 +483,61 @@ img.thumb {
   margin-bottom: 1rem;
 }
 
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-stat-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 1rem 1rem 0.9rem;
+  box-shadow: var(--admin-card-shadow);
+}
+
+.dashboard-stat-label {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dashboard-stat-value {
+  margin: 0.45rem 0 0.5rem;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--admin-heading);
+  line-height: 1.15;
+}
+
+.dashboard-stat-link {
+  font-size: 0.84rem;
+  color: var(--admin-link-accent);
+  text-decoration: none;
+}
+
+.dashboard-stat-link:hover {
+  text-decoration: underline;
+}
+
+.table-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.table-card-head h2 {
+  margin: 0;
+  color: var(--admin-heading);
+  font-size: 1.05rem;
+}
+
 .alert {
   padding: 0.85rem 1rem;
   border-radius: 8px;

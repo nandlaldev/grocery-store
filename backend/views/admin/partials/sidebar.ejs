@@ -1,7 +1,8 @@
 <aside class="admin-sidebar">
   <div class="sidebar-brand"><span>GA</span> Grocery Admin</div>
   <nav class="sidebar-nav">
-    <a href="/admin" class="sidebar-link <%= typeof active === 'string' && active === 'products' ? 'active' : '' %>">Products</a>
+    <a href="/admin" class="sidebar-link <%= typeof active === 'string' && active === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+    <a href="/admin/products" class="sidebar-link <%= typeof active === 'string' && active === 'products' ? 'active' : '' %>">Product Management</a>
     <a href="/admin/users" class="sidebar-link <%= typeof active === 'string' && active === 'users' ? 'active' : '' %>">User Management</a>
     <a href="/admin/orders" class="sidebar-link <%= typeof active === 'string' && active === 'orders' ? 'active' : '' %>">Order Management</a>
     <a href="/admin/app-config" class="sidebar-link <%= typeof active === 'string' && active === 'app-config' ? 'active' : '' %>">App Config</a>
