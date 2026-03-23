@@ -1,4 +1,4 @@
-<%- include('partials/head', { title: (post ? 'Edit' : 'New') + ' Post' }) %>
+<%- include('partials/head', { title: 'Blog Management - ' + (post ? 'Edit Post' : 'New Post') }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'blogs' }) %>
     <div class="admin-content">
