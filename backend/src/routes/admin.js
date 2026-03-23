@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { upload } from '../middleware/upload.js';
-import { requireAdminSession } from '../middleware/adminAuth.js';
+import { requireAdminSession, attachAdminUser } from '../middleware/adminAuth.js';
 import {
   createBanner,
   createBlog,
@@ -42,6 +42,9 @@ import {
   renderFooterConfig,
   saveFooterConfig,
   removeFooterConfig,
+  renderAdminProfile,
+  updateAdminProfile,
+  updateAdminPassword,
 } from '../controllers/adminController.js';
 
 const router = Router();
@@ -59,13 +62,15 @@ router.post(
 
 router.get('/logout', logout);
 
-router.get('/', requireAdminSession, renderDashboard);
-router.get('/products/new', requireAdminSession, renderNewProduct);
-router.get('/products/edit/:id', requireAdminSession, renderEditProduct);
+const secured = Router();
+secured.use(requireAdminSession, attachAdminUser);
 
-router.post(
+secured.get('/', renderDashboard);
+secured.get('/products/new', renderNewProduct);
+secured.get('/products/edit/:id', renderEditProduct);
+
+secured.post(
   '/products',
-  requireAdminSession,
   upload.single('image'),
   [
     body('name').trim().notEmpty(),
@@ -77,9 +82,8 @@ router.post(
   createProduct
 );
 
-router.post(
+secured.post(
   '/products/:id',
-  requireAdminSession,
   upload.single('image'),
   [
     body('name').trim().notEmpty(),
@@ -91,37 +95,43 @@ router.post(
   updateProduct
 );
 
-router.post('/products/:id/delete', requireAdminSession, deleteProduct);
-router.get('/users', requireAdminSession, renderUsers);
-router.get('/orders', requireAdminSession, renderOrders);
-router.post('/orders/:id/status', requireAdminSession, updateOrderStatus);
-router.get('/app-config', requireAdminSession, renderAppConfig);
-router.get('/banners/new', requireAdminSession, renderNewBanner);
-router.get('/banners/edit/:id', requireAdminSession, renderEditBanner);
-router.post('/banners', requireAdminSession, upload.single('banner'), createBanner);
-router.post('/banners/:id', requireAdminSession, upload.single('banner'), updateBanner);
-router.post('/banners/:id/delete', requireAdminSession, deleteBanner);
-router.get('/blogs', requireAdminSession, renderBlogs);
-router.get('/blogs/new', requireAdminSession, renderNewBlog);
-router.get('/blogs/edit/:id', requireAdminSession, renderEditBlog);
-router.post('/blogs', requireAdminSession, upload.single('image'), createBlog);
-router.post('/blogs/:id', requireAdminSession, upload.single('image'), updateBlog);
-router.post('/blogs/:id/delete', requireAdminSession, deleteBlog);
-router.get('/team', requireAdminSession, renderTeams);
-router.get('/team/new', requireAdminSession, renderNewTeam);
-router.get('/team/edit/:id', requireAdminSession, renderEditTeam);
-router.post('/team', requireAdminSession, upload.single('image'), createTeam);
-router.post('/team/:id', requireAdminSession, upload.single('image'), updateTeam);
-router.post('/team/:id/delete', requireAdminSession, deleteTeam);
-router.get('/faqs', requireAdminSession, renderFaqs);
-router.get('/faqs/new', requireAdminSession, renderNewFaq);
-router.get('/faqs/edit/:id', requireAdminSession, renderEditFaq);
-router.post('/faqs', requireAdminSession, createFaq);
-router.post('/faqs/:id', requireAdminSession, updateFaq);
-router.post('/faqs/:id/delete', requireAdminSession, deleteFaq);
+secured.post('/products/:id/delete', deleteProduct);
+secured.get('/users', renderUsers);
+secured.get('/orders', renderOrders);
+secured.post('/orders/:id/status', updateOrderStatus);
+secured.get('/app-config', renderAppConfig);
+secured.get('/banners/new', renderNewBanner);
+secured.get('/banners/edit/:id', renderEditBanner);
+secured.post('/banners', upload.single('banner'), createBanner);
+secured.post('/banners/:id', upload.single('banner'), updateBanner);
+secured.post('/banners/:id/delete', deleteBanner);
+secured.get('/blogs', renderBlogs);
+secured.get('/blogs/new', renderNewBlog);
+secured.get('/blogs/edit/:id', renderEditBlog);
+secured.post('/blogs', upload.single('image'), createBlog);
+secured.post('/blogs/:id', upload.single('image'), updateBlog);
+secured.post('/blogs/:id/delete', deleteBlog);
+secured.get('/team', renderTeams);
+secured.get('/team/new', renderNewTeam);
+secured.get('/team/edit/:id', renderEditTeam);
+secured.post('/team', upload.single('image'), createTeam);
+secured.post('/team/:id', upload.single('image'), updateTeam);
+secured.post('/team/:id/delete', deleteTeam);
+secured.get('/faqs', renderFaqs);
+secured.get('/faqs/new', renderNewFaq);
+secured.get('/faqs/edit/:id', renderEditFaq);
+secured.post('/faqs', createFaq);
+secured.post('/faqs/:id', updateFaq);
+secured.post('/faqs/:id/delete', deleteFaq);
 
-router.get('/app-config/footer', requireAdminSession, renderFooterConfig);
-router.post('/app-config/footer', requireAdminSession, saveFooterConfig);
-router.post('/app-config/footer/delete', requireAdminSession, removeFooterConfig);
+secured.get('/app-config/footer', renderFooterConfig);
+secured.post('/app-config/footer', saveFooterConfig);
+secured.post('/app-config/footer/delete', removeFooterConfig);
+
+secured.get('/profile', renderAdminProfile);
+secured.post('/profile', upload.single('avatar'), updateAdminProfile);
+secured.post('/profile/password', updateAdminPassword);
+
+router.use('/', secured);
 
 export default router;

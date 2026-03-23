@@ -1,6 +1,8 @@
 <%- include('partials/head', { title: 'Order Management' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'orders' }) %>
+    <div class="admin-content">
+    <%- include('partials/header') %>
     <main class="admin-main">
       <div class="admin-page-header">
         <h1>Order Management</h1>
@@ -86,6 +88,7 @@
         </div>
       <% } %>
     </main>
+    </div>
   </div>
 </body>
 </html>

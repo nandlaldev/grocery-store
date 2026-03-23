@@ -1,6 +1,8 @@
 <%- include('partials/head', { title: (product ? 'Edit' : 'Add') + ' Product' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'products' }) %>
+    <div class="admin-content">
+    <%- include('partials/header') %>
     <main class="admin-main">
       <div class="admin-page-header">
         <h1><%= product ? 'Edit Product' : 'Add Product' %></h1>
@@ -31,6 +33,7 @@
         </form>
       </div>
     </main>
+    </div>
   </div>
 </body>
 </html>

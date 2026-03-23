@@ -1,6 +1,8 @@
 <%- include('partials/head', { title: 'Footer Management' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'app-config' }) %>
+    <div class="admin-content">
+    <%- include('partials/header') %>
     <main class="admin-main">
       <div class="subnav">
         <a href="/admin/app-config">Banners</a>
@@ -88,6 +90,7 @@
         </form>
       </div>
     </main>
+    </div>
   </div>
 </body>
 </html>

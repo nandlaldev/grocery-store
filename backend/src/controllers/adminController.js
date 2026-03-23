@@ -530,3 +530,72 @@ export async function saveFooterConfig(req, res) {
 export async function removeFooterConfig(req, res) {
   return deleteFooterConfig(req, res);
 }
+
+export async function renderAdminProfile(req, res) {
+  const user = await User.findById(req.session.adminId).select('fullName email phone avatarUrl role').lean();
+  if (!user || user.role !== 'admin') {
+    return res.redirect('/admin/login');
+  }
+  return res.render('admin/profile', {
+    user,
+    error: req.query.error ? String(req.query.error) : null,
+    pwdError: req.query.pwdError ? String(req.query.pwdError) : null,
+    ok: req.query.ok === '1',
+    pwdOk: req.query.pwdOk === '1',
+  });
+}
+
+export async function updateAdminProfile(req, res) {
+  const user = await User.findById(req.session.adminId);
+  if (!user || user.role !== 'admin') {
+    return res.redirect('/admin/login');
+  }
+
+  const fullName = (req.body.fullName || '').trim();
+  if (!fullName) {
+    return res.redirect('/admin/profile?error=' + encodeURIComponent('Name is required'));
+  }
+  user.fullName = fullName;
+  user.phone = (req.body.phone || '').trim() || undefined;
+
+  if (req.file) {
+    user.avatarUrl = getUploadedImageUrl(req);
+  }
+
+  await user.save();
+  return res.redirect('/admin/profile?ok=1');
+}
+
+export async function updateAdminPassword(req, res) {
+  const user = await User.findById(req.session.adminId).select('+password');
+  if (!user || user.role !== 'admin') {
+    return res.redirect('/admin/login');
+  }
+
+  const newPassword = (req.body.newPassword || '').trim();
+  const currentPassword = (req.body.currentPassword || '').trim();
+  const confirmPassword = (req.body.confirmPassword || '').trim();
+
+  if (!newPassword) {
+    return res.redirect(
+      '/admin/profile?pwdError=' + encodeURIComponent('Enter a new password')
+    );
+  }
+  if (newPassword.length < 6) {
+    return res.redirect(
+      '/admin/profile?pwdError=' + encodeURIComponent('New password must be at least 6 characters')
+    );
+  }
+  if (newPassword !== confirmPassword) {
+    return res.redirect('/admin/profile?pwdError=' + encodeURIComponent('New passwords do not match'));
+  }
+  if (!currentPassword || !(await user.comparePassword(currentPassword))) {
+    return res.redirect(
+      '/admin/profile?pwdError=' + encodeURIComponent('Current password is incorrect')
+    );
+  }
+
+  user.password = newPassword;
+  await user.save();
+  return res.redirect('/admin/profile?pwdOk=1');
+}

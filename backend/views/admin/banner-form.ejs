@@ -1,6 +1,8 @@
 <%- include('partials/head', { title: (banner ? 'Edit' : 'Add') + ' Banner' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'app-config' }) %>
+    <div class="admin-content">
+    <%- include('partials/header') %>
     <main class="admin-main">
       <div class="admin-page-header">
         <h1><%= banner ? 'Edit Banner' : 'Add Banner' %></h1>
@@ -27,6 +29,7 @@
         </form>
       </div>
     </main>
+    </div>
   </div>
 </body>
 </html>

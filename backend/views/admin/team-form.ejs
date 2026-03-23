@@ -1,6 +1,8 @@
 <%- include('partials/head', { title: (member ? 'Edit' : 'New') + ' Team Member' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'team' }) %>
+    <div class="admin-content">
+    <%- include('partials/header') %>
     <main class="admin-main">
       <div class="admin-page-header">
         <h1><%= member ? 'Edit Team Member' : 'Add Team Member' %></h1>
@@ -38,6 +40,7 @@
         </form>
       </div>
     </main>
+    </div>
   </div>
 </body>
 </html>
