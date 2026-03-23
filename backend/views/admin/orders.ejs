@@ -1,75 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Management – Grocery Admin</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; }
-    .admin-wrap { display: flex; min-height: 100vh; }
-    .admin-sidebar { width: 220px; background: #0f766e; color: #fff; padding: 1rem 0; flex-shrink: 0; display: flex; flex-direction: column; }
-    .sidebar-brand { font-weight: 700; font-size: 1.1rem; padding: 0 1rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
-    .sidebar-nav { flex: 1; }
-    .sidebar-link { display: block; padding: 0.6rem 1rem; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
-    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .sidebar-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
-    .sidebar-logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; color: rgba(255,255,255,0.8); }
-    .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #0f766e; color: #fff; }
-    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; cursor: pointer; border: none; }
-    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
-    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
-    .badge-pending { background: #fef3c7; color: #92400e; }
-    .badge-confirmed { background: #dbeafe; color: #1e40af; }
-    .badge-delivered { background: #d1fae5; color: #065f46; }
-  </style>
-</head>
-<body>
+<%- include('partials/head', { title: 'Order Management' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'orders' }) %>
     <main class="admin-main">
-      <h1>Order Management</h1>
+      <div class="admin-page-header">
+        <h1>Order Management</h1>
+        <p class="muted">Search customers or addresses, filter by status.</p>
+      </div>
+
       <% if (typeof error !== 'undefined' && error) { %>
-        <p style="color:#b91c1c;"><%= error %></p>
+        <div class="alert"><%= error %></div>
       <% } %>
-      <% if (orders.length === 0) { %>
-        <p>No orders yet.</p>
-      <% } else { %>
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Customer</th>
-              <th>Address</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Update</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% orders.forEach(function(o) { %>
-            <tr>
-              <td><%= new Date(o.createdAt).toLocaleString() %></td>
-              <td><%= o.fullName %><br><small><%= o.phone %></small></td>
-              <td><%= o.address %>, <%= o.city %> - <%= o.pincode %></td>
-              <td>₹<%= o.total %></td>
-              <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
-              <td>
-                <form method="post" action="/admin/orders/<%= o._id %>/status" style="display:inline;">
-                  <select name="status" onchange="this.form.submit()" style="padding:0.25rem;font-size:0.8rem;">
-                    <option value="pending" <%= o.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                    <option value="confirmed" <%= o.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
-                    <option value="delivered" <%= o.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                  </select>
-                </form>
-              </td>
-            </tr>
+
+      <form class="table-toolbar" method="get" action="/admin/orders">
+        <label>Search
+          <input type="search" name="q" value="<%= filters.q %>" placeholder="Name, phone, city…" autocomplete="off" />
+        </label>
+        <label>Status
+          <select name="status">
+            <option value="">All statuses</option>
+            <option value="pending" <%= filters.status === 'pending' ? 'selected' : '' %>>Pending</option>
+            <option value="confirmed" <%= filters.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+            <option value="delivered" <%= filters.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+          </select>
+        </label>
+        <label>Per page
+          <select name="limit">
+            <% [10, 20, 50].forEach(function(n) { %>
+              <option value="<%= n %>" <%= pagination && pagination.limit === n ? 'selected' : '' %>><%= n %></option>
             <% }); %>
-          </tbody>
-        </table>
+          </select>
+        </label>
+        <div class="toolbar-actions">
+          <button type="submit" class="btn btn-primary">Apply</button>
+          <a href="/admin/orders" class="btn btn-ghost">Reset</a>
+        </div>
+      </form>
+
+      <% if (!orders || orders.length === 0) { %>
+        <div class="table-card">
+          <div class="empty-state">
+            <% if (filters.q || filters.status) { %>
+              No orders match your filters. <a href="/admin/orders">Clear filters</a>.
+            <% } else { %>
+              No orders yet.
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="table-card">
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Address</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Update</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach(function(o) { %>
+                <tr>
+                  <td><%= new Date(o.createdAt).toLocaleString() %></td>
+                  <td><%= o.fullName %><br><small class="muted"><%= o.phone %></small></td>
+                  <td><%= o.address %>, <%= o.city %> - <%= o.pincode %></td>
+                  <td>₹<%= o.total %></td>
+                  <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
+                  <td>
+                    <form method="post" action="/admin/orders/<%= o._id %>/status" style="display:inline;">
+                      <select name="status" onchange="this.form.submit()">
+                        <option value="pending" <%= o.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="confirmed" <%= o.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                        <option value="delivered" <%= o.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                      </select>
+                    </form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <%- include('partials/pagination') %>
+        </div>
       <% } %>
     </main>
   </div>

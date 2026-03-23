@@ -1,87 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Banners – Grocery Admin</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; }
-    .admin-wrap { display: flex; min-height: 100vh; }
-    .admin-sidebar { width: 220px; background: #0f766e; color: #fff; padding: 1rem 0; flex-shrink: 0; display: flex; flex-direction: column; }
-    .sidebar-brand { font-weight: 700; font-size: 1.1rem; padding: 0 1rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
-    .sidebar-nav { flex: 1; }
-    .sidebar-link { display: block; padding: 0.6rem 1rem; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
-    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .sidebar-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
-    .sidebar-logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; color: rgba(255,255,255,0.8); }
-    .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #0f766e; color: #fff; }
-    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; cursor: pointer; border: none; }
-    .btn-primary { background: #0f766e; color: #fff; }
-    .btn-danger { background: #b91c1c; color: #fff; }
-    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
-    .banner-thumb { width: 120px; height: 56px; object-fit: cover; border-radius: 4px; }
-
-    .subnav {
-      display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem;
-      padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff;
-    }
-    .subnav a {
-      text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.9rem;
-      color: #0f766e; border: 1px solid transparent;
-    }
-    .subnav a.active {
-      background: rgba(15,118,110,0.08); border-color: rgba(15,118,110,0.35);
-      font-weight: 600;
-    }
-  </style>
-</head>
-<body>
+<%- include('partials/head', { title: 'Banners' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'app-config' }) %>
     <main class="admin-main">
       <div class="subnav">
         <a href="/admin/app-config" class="active">Banners</a>
-        <a href="/admin/app-config/footer" class="">Footer Management</a>
+        <a href="/admin/app-config/footer">Footer Management</a>
       </div>
-      <h1>Home Banners</h1>
-      <p style="color:#64748b;font-size:0.9rem;">Banners appear in the slider on the website home page. Order determines display order.</p>
-      <p><a href="/admin/banners/new" class="btn btn-primary">Add Banner</a></p>
-      <% if (!banners || banners.length === 0) { %>
-        <p>No banners yet. <a href="/admin/banners/new">Add one</a>.</p>
-      <% } else { %>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Image</th>
-              <th>Title</th>
-              <th>Subtitle</th>
-              <th>Order</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% banners.forEach(function(b, i) { %>
-            <tr>
-              <td><%= i + 1 %></td>
-              <td><img src="<%= b.imageUrl %>" alt="" class="banner-thumb" /></td>
-              <td><%= b.title || '—' %></td>
-              <td><%= b.subtitle || '—' %></td>
-              <td><%= b.order %></td>
-              <td>
-                <a href="/admin/banners/edit/<%= b._id %>" class="btn btn-primary btn-sm">Edit</a>
-                <form method="post" action="/admin/banners/<%= b._id %>/delete" style="display:inline;" onsubmit="return confirm('Delete this banner?');">
-                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
-              </td>
-            </tr>
+
+      <div class="admin-page-header">
+        <h1>Home Banners</h1>
+        <p class="muted">Banners appear in the slider on the website home page. Order determines display order.</p>
+      </div>
+
+      <div class="top-actions">
+        <a href="/admin/banners/new" class="btn btn-primary">Add Banner</a>
+      </div>
+
+      <form class="table-toolbar" method="get" action="/admin/app-config">
+        <label>Search
+          <input type="search" name="q" value="<%= filters.q %>" placeholder="Title or subtitle…" autocomplete="off" />
+        </label>
+        <label>Per page
+          <select name="limit">
+            <% [10, 20, 50].forEach(function(n) { %>
+              <option value="<%= n %>" <%= pagination && pagination.limit === n ? 'selected' : '' %>><%= n %></option>
             <% }); %>
-          </tbody>
-        </table>
+          </select>
+        </label>
+        <div class="toolbar-actions">
+          <button type="submit" class="btn btn-primary">Apply</button>
+          <a href="/admin/app-config" class="btn btn-ghost">Reset</a>
+        </div>
+      </form>
+
+      <% if (!banners || banners.length === 0) { %>
+        <div class="table-card">
+          <div class="empty-state">
+            <% if (filters.q) { %>
+              No banners match your search. <a href="/admin/app-config">Clear</a> or <a href="/admin/banners/new">add a banner</a>.
+            <% } else { %>
+              No banners yet. <a href="/admin/banners/new">Add one</a>.
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="table-card">
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Image</th>
+                  <th>Title</th>
+                  <th>Subtitle</th>
+                  <th>Order</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% banners.forEach(function(b, i) { %>
+                <tr>
+                  <td><%= (pagination.page - 1) * pagination.limit + i + 1 %></td>
+                  <td><img src="<%= b.imageUrl %>" alt="" class="banner-thumb" /></td>
+                  <td><%= b.title || '—' %></td>
+                  <td><%= b.subtitle || '—' %></td>
+                  <td><%= b.order %></td>
+                  <td>
+                    <a href="/admin/banners/edit/<%= b._id %>" class="btn btn-primary btn-sm">Edit</a>
+                    <form method="post" action="/admin/banners/<%= b._id %>/delete" style="display:inline;" onsubmit="return confirm('Delete this banner?');">
+                      <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <%- include('partials/pagination') %>
+        </div>
       <% } %>
     </main>
   </div>

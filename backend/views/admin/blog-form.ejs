@@ -1,182 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>
-    <%= post ? 'Edit' : 'New' %> Post – Grocery Admin
-  </title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      background: #f1f5f9;
-    }
-
-    .admin-wrap {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    .admin-sidebar {
-      width: 220px;
-      background: #0f766e;
-      color: #fff;
-      padding: 1rem 0;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar-brand {
-      font-weight: 700;
-      font-size: 1.1rem;
-      padding: 0 1rem 0.75rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      margin-bottom: 0.5rem;
-    }
-
-    .sidebar-nav {
-      flex: 1;
-    }
-
-    .sidebar-link {
-      display: block;
-      padding: 0.6rem 1rem;
-      color: rgba(255, 255, 255, 0.9);
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-
-    .sidebar-link:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    .sidebar-link.active {
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .sidebar-logout {
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      margin-top: 0.5rem;
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    .admin-main {
-      flex: 1;
-      padding: 1.5rem;
-      overflow: auto;
-    }
-
-    .card {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      max-width: 800px;
-    }
-
-    form label {
-      display: block;
-      margin-top: 0.75rem;
-      font-weight: 500;
-    }
-
-    form input[type="text"],
-    form textarea:not(.ck-editor) {
-      width: 100%;
-      max-width: 560px;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    form textarea.raw {
-      width: 100%;
-      min-height: 280px;
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-family: inherit;
-    }
-
-    .error {
-      color: #b91c1c;
-      margin-top: 0.5rem;
-      font-size: 0.875rem;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 0.875rem;
-      cursor: pointer;
-      border: none;
-      background: #0f766e;
-      color: #fff;
-      margin-top: 1rem;
-    }
-
-    .cke {
-      max-width: 800px;
-    }
-  </style>
-</head>
-
-<body>
+<%- include('partials/head', { title: (post ? 'Edit' : 'New') + ' Post' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'blogs' }) %>
-      <main class="admin-main">
-        <h1>
-          <%= post ? 'Edit Post' : 'New Post' %>
-        </h1>
-        <% if (typeof error !=='undefined' && error) { %>
-          <p class="error">
-            <%= error %>
-          </p>
+    <main class="admin-main">
+      <div class="admin-page-header">
+        <h1><%= post ? 'Edit Post' : 'New Post' %></h1>
+      </div>
+      <div class="admin-form-card wide">
+        <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
+        <form method="post" action="<%= post ? '/admin/blogs/' + post._id : '/admin/blogs' %>" enctype="multipart/form-data" id="blogForm">
+          <label>Title *</label>
+          <input type="text" name="title" value="<%= post ? post.title : '' %>" required />
+          <label>Excerpt (short summary)</label>
+          <input type="text" name="excerpt" value="<%= post ? post.excerpt : '' %>" placeholder="Brief description for list view" />
+          <label>Featured image (optional)</label>
+          <input type="file" name="image" accept="image/*" />
+          <% if (post && post.imageUrl) { %>
+            <p style="margin-top:0.5rem;">Current: <img src="<%= post.imageUrl %>" alt="" style="max-height:60px;vertical-align:middle;border-radius:6px;" /></p>
           <% } %>
-            <div class="card" style="margin-top:1rem;">
-              <form method="post" action="<%= post ? '/admin/blogs/' + post._id : '/admin/blogs' %>"
-                enctype="multipart/form-data" id="blogForm">
-                <label>Title *</label>
-                <input type="text" name="title" value="<%= post ? post.title : '' %>" required />
-                <label style="margin-top:1rem;">Excerpt (short summary)</label>
-                <input type="text" name="excerpt" value="<%= post ? post.excerpt : '' %>"
-                  placeholder="Brief description for list view" />
-                <label style="margin-top:1rem;">Featured image (optional)</label>
-                <input type="file" name="image" accept="image/*" />
-                <% if (post && post.imageUrl) { %>
-                  <p style="margin-top:0.5rem;">Current: <img src="<%= post.imageUrl %>" alt=""
-                      style="max-height:60px;vertical-align:middle;" /></p>
-                  <% } %>
-                    <label style="margin-top:1rem;">Content</label>
-                    <textarea name="content" id="content" class="raw"><%= post ? post.content : '' %></textarea>
-                    <label style="margin-top:1rem;">Status</label>
-                    <select name="status" style="padding:0.5rem;max-width:200px;">
-                      <option value="published" <%=post && post.status==='published' ? 'selected' : '' %>>Published
-                      </option>
-                      <option value="draft" <%=post && post.status==='draft' ? 'selected' : '' %>>Draft</option>
-                    </select>
-                    <p style="margin-top:1rem;">
-                      <button type="submit" class="btn">
-                        <%= post ? 'Update' : 'Publish' %> Post
-                      </button>
-                      <a href="/admin/blogs" class="btn" style="margin-left:0.5rem;background:#64748b;">Cancel</a>
-                    </p>
-              </form>
-            </div>
-      </main>
+          <label>Content</label>
+          <textarea name="content" id="content" class="raw"><%= post ? post.content : '' %></textarea>
+          <label>Status</label>
+          <select name="status">
+            <option value="published" <%= post && post.status === 'published' ? 'selected' : '' %>>Published</option>
+            <option value="draft" <%= post && post.status === 'draft' ? 'selected' : '' %>>Draft</option>
+          </select>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><%= post ? 'Update' : 'Publish' %> Post</button>
+            <a href="/admin/blogs" class="btn btn-ghost">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
   </div>
   <script src="https://cdn.ckeditor.com/4.24.0-lts/full/ckeditor.js"></script>
   <script>
@@ -223,5 +77,4 @@
     }
   </script>
 </body>
-
 </html>

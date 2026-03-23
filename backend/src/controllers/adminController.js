@@ -8,6 +8,7 @@ import Team from '../models/Team.js';
 import Faq from '../models/Faq.js';
 import FooterConfig from '../models/FooterConfig.js';
 import { upsertFooterConfig, deleteFooterConfig } from './footerConfigController.js';
+import { parsePagination, searchRegex, paginationMeta, safeAdminRedirect } from '../utils/adminList.js';
 
 function slugify(s) {
   return String(s)
@@ -45,9 +46,37 @@ export function logout(req, res) {
   return req.session.destroy(() => res.redirect('/admin/login'));
 }
 
-export async function renderDashboard(_req, res) {
-  const products = await Product.find().sort({ createdAt: -1 }).lean();
-  return res.render('admin/dashboard', { products });
+export async function renderDashboard(req, res) {
+  const { page, limit, skip } = parsePagination(req);
+  const q = (req.query.q || '').trim();
+  const category = (req.query.category || '').trim();
+  const stock = (req.query.stock || '').trim();
+
+  const filter = {};
+  if (category) filter.category = category;
+  if (stock === 'low') {
+    filter.qty = { $lte: 10, $gte: 1 };
+  } else if (stock === 'out') {
+    filter.qty = 0;
+  }
+  const rx = searchRegex(q);
+  if (rx) {
+    filter.$or = [{ name: rx }, { description: rx }, { category: rx }];
+  }
+
+  const [products, total, categories] = await Promise.all([
+    Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Product.countDocuments(filter),
+    Product.distinct('category'),
+  ]);
+
+  const pagination = paginationMeta(req, page, limit, total, ['q', 'category', 'stock', 'limit']);
+  return res.render('admin/dashboard', {
+    products,
+    pagination,
+    filters: { q, category, stock },
+    categories: categories.filter(Boolean).sort(),
+  });
 }
 
 export async function renderNewProduct(_req, res) {
@@ -110,27 +139,70 @@ export async function updateProduct(req, res) {
 
 export async function deleteProduct(req, res) {
   await Product.findByIdAndDelete(req.params.id);
-  return res.redirect('/admin');
+  return res.redirect(safeAdminRedirect(req, '/admin'));
 }
 
-export async function renderUsers(_req, res) {
-  const users = await User.find().select('-password').sort({ createdAt: -1 }).lean();
-  return res.render('admin/users', { users });
+export async function renderUsers(req, res) {
+  const { page, limit, skip } = parsePagination(req);
+  const q = (req.query.q || '').trim();
+  const role = (req.query.role || '').trim();
+
+  const filter = {};
+  if (role === 'admin' || role === 'customer') filter.role = role;
+  const rx = searchRegex(q);
+  if (rx) {
+    filter.$or = [{ fullName: rx }, { email: rx }];
+  }
+
+  const [users, total] = await Promise.all([
+    User.find(filter).select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    User.countDocuments(filter),
+  ]);
+  const pagination = paginationMeta(req, page, limit, total, ['q', 'role', 'limit']);
+  return res.render('admin/users', { users, pagination, filters: { q, role } });
 }
 
 export async function renderOrders(req, res) {
-  const orders = await Order.find().sort({ createdAt: -1 }).lean();
-  return res.render('admin/orders', { orders, error: req.query.error || null });
+  const { page, limit, skip } = parsePagination(req);
+  const q = (req.query.q || '').trim();
+  const status = (req.query.status || '').trim();
+
+  const filter = {};
+  if (status === 'pending' || status === 'confirmed' || status === 'delivered') {
+    filter.status = status;
+  }
+  const rx = searchRegex(q);
+  if (rx) {
+    filter.$or = [
+      { fullName: rx },
+      { phone: rx },
+      { address: rx },
+      { city: rx },
+      { pincode: rx },
+    ];
+  }
+
+  const [orders, total] = await Promise.all([
+    Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Order.countDocuments(filter),
+  ]);
+  const pagination = paginationMeta(req, page, limit, total, ['q', 'status', 'limit']);
+  return res.render('admin/orders', {
+    orders,
+    pagination,
+    filters: { q, status },
+    error: req.query.error || null,
+  });
 }
 
 export async function updateOrderStatus(req, res) {
   const status = req.body.status;
   if (!['pending', 'confirmed', 'delivered'].includes(status)) {
-    return res.redirect('/admin/orders');
+    return res.redirect(safeAdminRedirect(req, '/admin/orders'));
   }
 
   const order = await Order.findById(req.params.id);
-  if (!order) return res.redirect('/admin/orders');
+  if (!order) return res.redirect(safeAdminRedirect(req, '/admin/orders'));
 
   const confirmNow = status === 'confirmed' && order.status !== 'confirmed';
   if (confirmNow) {
@@ -140,19 +212,32 @@ export async function updateOrderStatus(req, res) {
         { $inc: { qty: -item.quantity } }
       );
       if (!updated.modifiedCount) {
-        return res.redirect('/admin/orders?error=Insufficient+stock+for+one+or+more+items');
+        const back = safeAdminRedirect(req, '/admin/orders');
+        const sep = back.includes('?') ? '&' : '?';
+        return res.redirect(`${back}${sep}error=${encodeURIComponent('Insufficient stock for one or more items')}`);
       }
     }
   }
 
   order.status = status;
   await order.save();
-  return res.redirect('/admin/orders');
+  return res.redirect(safeAdminRedirect(req, '/admin/orders'));
 }
 
-export async function renderAppConfig(_req, res) {
-  const banners = await Banner.find().sort({ order: 1, createdAt: 1 }).lean();
-  return res.render('admin/app-config', { banners });
+export async function renderAppConfig(req, res) {
+  const { page, limit, skip } = parsePagination(req);
+  const q = (req.query.q || '').trim();
+  const filter = {};
+  const rx = searchRegex(q);
+  if (rx) {
+    filter.$or = [{ title: rx }, { subtitle: rx }];
+  }
+  const [banners, total] = await Promise.all([
+    Banner.find(filter).sort({ order: 1, createdAt: 1 }).skip(skip).limit(limit).lean(),
+    Banner.countDocuments(filter),
+  ]);
+  const pagination = paginationMeta(req, page, limit, total, ['q', 'limit']);
+  return res.render('admin/app-config', { banners, pagination, filters: { q } });
 }
 
 export function renderNewBanner(req, res) {
@@ -198,12 +283,27 @@ export async function updateBanner(req, res) {
 
 export async function deleteBanner(req, res) {
   await Banner.findByIdAndDelete(req.params.id);
-  return res.redirect('/admin/app-config');
+  return res.redirect(safeAdminRedirect(req, '/admin/app-config'));
 }
 
-export async function renderBlogs(_req, res) {
-  const posts = await Blog.find().sort({ createdAt: -1 }).lean();
-  return res.render('admin/blogs', { posts });
+export async function renderBlogs(req, res) {
+  const { page, limit, skip } = parsePagination(req);
+  const q = (req.query.q || '').trim();
+  const status = (req.query.status || '').trim();
+
+  const filter = {};
+  if (status === 'draft' || status === 'published') filter.status = status;
+  const rx = searchRegex(q);
+  if (rx) {
+    filter.$or = [{ title: rx }, { excerpt: rx }];
+  }
+
+  const [posts, total] = await Promise.all([
+    Blog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Blog.countDocuments(filter),
+  ]);
+  const pagination = paginationMeta(req, page, limit, total, ['q', 'status', 'limit']);
+  return res.render('admin/blogs', { posts, pagination, filters: { q, status } });
 }
 
 export function renderNewBlog(req, res) {
@@ -252,12 +352,28 @@ export async function updateBlog(req, res) {
 
 export async function deleteBlog(req, res) {
   await Blog.findByIdAndDelete(req.params.id);
-  return res.redirect('/admin/blogs');
+  return res.redirect(safeAdminRedirect(req, '/admin/blogs'));
 }
 
-export async function renderTeams(_req, res) {
-  const members = await Team.find().sort({ order: 1, createdAt: 1 }).lean();
-  return res.render('admin/teams', { members });
+export async function renderTeams(req, res) {
+  const { page, limit, skip } = parsePagination(req);
+  const q = (req.query.q || '').trim();
+  const active = (req.query.active || '').trim();
+
+  const filter = {};
+  if (active === 'true') filter.active = true;
+  else if (active === 'false') filter.active = false;
+  const rx = searchRegex(q);
+  if (rx) {
+    filter.$or = [{ name: rx }, { role: rx }, { description: rx }];
+  }
+
+  const [members, total] = await Promise.all([
+    Team.find(filter).sort({ order: 1, createdAt: 1 }).skip(skip).limit(limit).lean(),
+    Team.countDocuments(filter),
+  ]);
+  const pagination = paginationMeta(req, page, limit, total, ['q', 'active', 'limit']);
+  return res.render('admin/teams', { members, pagination, filters: { q, active } });
 }
 
 export function renderNewTeam(req, res) {
@@ -323,12 +439,28 @@ export async function updateTeam(req, res) {
 
 export async function deleteTeam(req, res) {
   await Team.findByIdAndDelete(req.params.id);
-  return res.redirect('/admin/team');
+  return res.redirect(safeAdminRedirect(req, '/admin/team'));
 }
 
-export async function renderFaqs(_req, res) {
-  const faqs = await Faq.find().sort({ order: 1, createdAt: 1 }).lean();
-  return res.render('admin/faqs', { faqs });
+export async function renderFaqs(req, res) {
+  const { page, limit, skip } = parsePagination(req);
+  const q = (req.query.q || '').trim();
+  const active = (req.query.active || '').trim();
+
+  const filter = {};
+  if (active === 'true') filter.active = true;
+  else if (active === 'false') filter.active = false;
+  const rx = searchRegex(q);
+  if (rx) {
+    filter.$or = [{ question: rx }, { answer: rx }];
+  }
+
+  const [faqs, total] = await Promise.all([
+    Faq.find(filter).sort({ order: 1, createdAt: 1 }).skip(skip).limit(limit).lean(),
+    Faq.countDocuments(filter),
+  ]);
+  const pagination = paginationMeta(req, page, limit, total, ['q', 'active', 'limit']);
+  return res.render('admin/faqs', { faqs, pagination, filters: { q, active } });
 }
 
 export function renderNewFaq(req, res) {
@@ -378,7 +510,7 @@ export async function updateFaq(req, res) {
 
 export async function deleteFaq(req, res) {
   await Faq.findByIdAndDelete(req.params.id);
-  return res.redirect('/admin/faqs');
+  return res.redirect(safeAdminRedirect(req, '/admin/faqs'));
 }
 
 export async function renderFooterConfig(req, res) {

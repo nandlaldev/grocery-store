@@ -1,0 +1,20 @@
+<% if (typeof pagination !== 'undefined' && pagination && pagination.total > 0) { %>
+<footer class="pagination-bar">
+  <span class="pagination-info">
+    Showing <%= pagination.from %>–<%= pagination.to %> of <%= pagination.total %>
+    <% if (pagination.totalPages > 1) { %> · Page <%= pagination.page %> of <%= pagination.totalPages %><% } %>
+  </span>
+  <div class="pagination-links">
+    <% if (pagination.prevUrl) { %>
+      <a href="<%= pagination.prevUrl %>" class="btn btn-secondary btn-sm">Previous</a>
+    <% } else { %>
+      <span class="btn btn-secondary btn-sm" style="opacity:0.45;pointer-events:none;">Previous</span>
+    <% } %>
+    <% if (pagination.nextUrl) { %>
+      <a href="<%= pagination.nextUrl %>" class="btn btn-secondary btn-sm">Next</a>
+    <% } else { %>
+      <span class="btn btn-secondary btn-sm" style="opacity:0.45;pointer-events:none;">Next</span>
+    <% } %>
+  </div>
+</footer>
+<% } %>

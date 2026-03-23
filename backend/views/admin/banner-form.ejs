@@ -1,35 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= banner ? 'Edit' : 'Add' %> Banner – Grocery Admin</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; }
-    .admin-wrap { display: flex; min-height: 100vh; }
-    .admin-sidebar { width: 220px; background: #0f766e; color: #fff; padding: 1rem 0; flex-shrink: 0; display: flex; flex-direction: column; }
-    .sidebar-brand { font-weight: 700; font-size: 1.1rem; padding: 0 1rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
-    .sidebar-nav { flex: 1; }
-    .sidebar-link { display: block; padding: 0.6rem 1rem; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
-    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .sidebar-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
-    .sidebar-logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; color: rgba(255,255,255,0.8); }
-    .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
-    .card { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); max-width: 480px; }
-    form label { display: block; margin-top: 0.75rem; font-weight: 500; }
-    form input { width: 100%; padding: 0.5rem; margin-top: 0.25rem; border: 1px solid #ccc; border-radius: 4px; }
-    .error { color: #b91c1c; margin-top: 0.5rem; font-size: 0.875rem; }
-    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; cursor: pointer; border: none; background: #0f766e; color: #fff; margin-top: 1rem; }
-    .banner-preview { max-width: 100%; max-height: 160px; object-fit: contain; border-radius: 8px; margin-top: 0.5rem; background: #f1f5f9; }
-  </style>
-</head>
-<body>
+<%- include('partials/head', { title: (banner ? 'Edit' : 'Add') + ' Banner' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'app-config' }) %>
     <main class="admin-main">
-      <h1><%= banner ? 'Edit Banner' : 'Add Banner' %></h1>
-      <div class="card" style="margin-top:1rem;">
+      <div class="admin-page-header">
+        <h1><%= banner ? 'Edit Banner' : 'Add Banner' %></h1>
+      </div>
+      <div class="admin-form-card">
         <form method="post" action="<%= banner ? '/admin/banners/' + banner._id : '/admin/banners' %>" enctype="multipart/form-data">
           <label>Banner image <%= banner ? '(leave empty to keep current)' : '' %></label>
           <input type="file" name="banner" accept="image/*" <%= !banner ? 'required' : '' %> />
@@ -37,15 +13,17 @@
             <p style="margin-top:0.5rem;">Current:</p>
             <img src="<%= banner.imageUrl %>" alt="" class="banner-preview" />
           <% } %>
-          <label style="margin-top:1rem;">Title (optional)</label>
+          <label>Title (optional)</label>
           <input type="text" name="title" value="<%= banner ? banner.title : '' %>" placeholder="e.g. Fresh Groceries" />
           <label>Subtitle (optional)</label>
           <input type="text" name="subtitle" value="<%= banner ? banner.subtitle : '' %>" placeholder="e.g. Delivered to your door" />
           <label>Order (0 = first)</label>
           <input type="number" name="order" min="0" value="<%= banner ? banner.order : 0 %>" />
           <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
-          <button type="submit" class="btn"><%= banner ? 'Update' : 'Add' %> Banner</button>
-          <a href="/admin/app-config" class="btn" style="margin-left:0.5rem;background:#64748b;">Cancel</a>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><%= banner ? 'Update' : 'Add' %> Banner</button>
+            <a href="/admin/app-config" class="btn btn-ghost">Cancel</a>
+          </div>
         </form>
       </div>
     </main>

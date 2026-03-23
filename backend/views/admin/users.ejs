@@ -1,60 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Management – Grocery Admin</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; }
-    .admin-wrap { display: flex; min-height: 100vh; }
-    .admin-sidebar { width: 220px; background: #0f766e; color: #fff; padding: 1rem 0; flex-shrink: 0; display: flex; flex-direction: column; }
-    .sidebar-brand { font-weight: 700; font-size: 1.1rem; padding: 0 1rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
-    .sidebar-nav { flex: 1; }
-    .sidebar-link { display: block; padding: 0.6rem 1rem; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
-    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .sidebar-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
-    .sidebar-logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; color: rgba(255,255,255,0.8); }
-    .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #0f766e; color: #fff; }
-    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; cursor: pointer; border: none; }
-    .btn-primary { background: #0f766e; color: #fff; }
-    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
-    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
-    .badge-admin { background: #0f766e; color: #fff; }
-    .badge-customer { background: #e2e8f0; color: #475569; }
-  </style>
-</head>
-<body>
+<%- include('partials/head', { title: 'User Management' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'users' }) %>
     <main class="admin-main">
-      <h1>User Management</h1>
-      <% if (users.length === 0) { %>
-        <p>No users.</p>
-      <% } else { %>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Joined</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% users.forEach(function(u) { %>
-            <tr>
-              <td><%= u.fullName %></td>
-              <td><%= u.email %></td>
-              <td><span class="badge badge-<%= u.role %>"><%= u.role %></span></td>
-              <td><%= new Date(u.createdAt).toLocaleDateString() %></td>
-            </tr>
+      <div class="admin-page-header">
+        <h1>User Management</h1>
+        <p class="muted">Search by name or email, filter by role.</p>
+      </div>
+
+      <form class="table-toolbar" method="get" action="/admin/users">
+        <label>Search
+          <input type="search" name="q" value="<%= filters.q %>" placeholder="Name or email…" autocomplete="off" />
+        </label>
+        <label>Role
+          <select name="role">
+            <option value="">All roles</option>
+            <option value="customer" <%= filters.role === 'customer' ? 'selected' : '' %>>Customer</option>
+            <option value="admin" <%= filters.role === 'admin' ? 'selected' : '' %>>Admin</option>
+          </select>
+        </label>
+        <label>Per page
+          <select name="limit">
+            <% [10, 20, 50].forEach(function(n) { %>
+              <option value="<%= n %>" <%= pagination && pagination.limit === n ? 'selected' : '' %>><%= n %></option>
             <% }); %>
-          </tbody>
-        </table>
+          </select>
+        </label>
+        <div class="toolbar-actions">
+          <button type="submit" class="btn btn-primary">Apply</button>
+          <a href="/admin/users" class="btn btn-ghost">Reset</a>
+        </div>
+      </form>
+
+      <% if (!users || users.length === 0) { %>
+        <div class="table-card">
+          <div class="empty-state">
+            <% if (filters.q || filters.role) { %>
+              No users match your filters. <a href="/admin/users">Clear filters</a>.
+            <% } else { %>
+              No users yet.
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="table-card">
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach(function(u) { %>
+                <tr>
+                  <td><%= u.fullName %></td>
+                  <td><%= u.email %></td>
+                  <td><span class="badge badge-<%= u.role %>"><%= u.role %></span></td>
+                  <td><%= new Date(u.createdAt).toLocaleDateString() %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <%- include('partials/pagination') %>
+        </div>
       <% } %>
     </main>
   </div>

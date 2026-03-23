@@ -1,44 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= member ? 'Edit' : 'New' %> Team Member – Grocery Admin</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; margin: 0; background: #f1f5f9; }
-    .admin-wrap { display: flex; min-height: 100vh; }
-    .admin-sidebar { width: 220px; background: #0f766e; color: #fff; padding: 1rem 0; flex-shrink: 0; display: flex; flex-direction: column; }
-    .sidebar-brand { font-weight: 700; font-size: 1.1rem; padding: 0 1rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 0.5rem; }
-    .sidebar-nav { flex: 1; }
-    .sidebar-link { display: block; padding: 0.6rem 1rem; color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.9rem; }
-    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .sidebar-link.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
-    .sidebar-logout { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; color: rgba(255,255,255,0.8); }
-    .admin-main { flex: 1; padding: 1.5rem; overflow: auto; }
-    .card { max-width: 700px; padding: 1.5rem; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    form label { display: block; margin-top: 0.75rem; font-weight: 500; }
-    form input[type="text"], form input[type="number"], form textarea {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    textarea { min-height: 100px; }
-    .error { color: #b91c1c; margin-top: 0.5rem; }
-    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; cursor: pointer; border: none; }
-    .btn-primary { background: #0f766e; color: #fff; }
-    .thumb { width: 64px; height: 64px; border-radius: 999px; object-fit: cover; border: 1px solid #e2e8f0; }
-  </style>
-</head>
-<body>
+<%- include('partials/head', { title: (member ? 'Edit' : 'New') + ' Team Member' }) %>
   <div class="admin-wrap">
     <%- include('partials/sidebar', { active: 'team' }) %>
     <main class="admin-main">
-      <h1><%= member ? 'Edit Team Member' : 'Add Team Member' %></h1>
-      <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
-      <div class="card" style="margin-top:1rem;">
+      <div class="admin-page-header">
+        <h1><%= member ? 'Edit Team Member' : 'Add Team Member' %></h1>
+      </div>
+      <div class="admin-form-card">
+        <% if (typeof error !== 'undefined' && error) { %><p class="error"><%= error %></p><% } %>
         <form method="post" action="<%= member ? '/admin/team/' + member._id : '/admin/team' %>" enctype="multipart/form-data">
           <label>Name *</label>
           <input type="text" name="name" value="<%= member ? member.name : '' %>" required />
@@ -55,18 +23,18 @@
           <label>Image</label>
           <input type="file" name="image" accept="image/*" />
           <% if (member && member.imageUrl) { %>
-            <p style="margin-top:0.5rem;"><img class="thumb" src="<%= member.imageUrl %>" alt="" /> Current image</p>
+            <p style="margin-top:0.5rem;"><img class="thumb round" src="<%= member.imageUrl %>" alt="" /> Current image</p>
           <% } %>
 
-          <label style="margin-top:1rem;">
+          <label style="margin-top:1rem;text-transform:none;">
             <input type="checkbox" name="active" <%= !member || member.active ? 'checked' : '' %> />
             Active (show on website)
           </label>
 
-          <p style="margin-top:1rem;">
+          <div class="form-actions">
             <button type="submit" class="btn btn-primary"><%= member ? 'Update' : 'Create' %> Member</button>
-            <a href="/admin/team" class="btn" style="margin-left:0.5rem;">Cancel</a>
-          </p>
+            <a href="/admin/team" class="btn btn-ghost">Cancel</a>
+          </div>
         </form>
       </div>
     </main>
